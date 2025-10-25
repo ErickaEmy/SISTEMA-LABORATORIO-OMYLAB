@@ -5,7 +5,7 @@ using SistemaLaboratorio.Models;
 using SistemaLaboratorio.Services;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Services.AddHttpClient();
 // ========== CONFIGURACIÓN DE LOGGING ==========
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();

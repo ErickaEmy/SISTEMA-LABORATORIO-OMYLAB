@@ -12,11 +12,11 @@ COPY . .
 # Publicamos la app
 RUN dotnet publish SistemaLaboratorio/SistemaLaboratorio.csproj -c Release -o /app/out
 
-# Etapa final de ejecución
+# Etapa final
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# Instalar dependencias necesarias para wkhtmltopdf
+# Instalar dependencias necesarias y wkhtmltopdf (compatible con Debian 12)
 RUN apt-get update && apt-get install -y \
     fontconfig \
     libfreetype6 \
@@ -28,22 +28,17 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     xfonts-75dpi \
     xfonts-base \
-    wget \
+    wkhtmltopdf \
     && rm -rf /var/lib/apt/lists/*
-
-# Instalar wkhtmltopdf desde el paquete oficial
-RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb \
-    && apt install -y ./wkhtmltox_0.12.6-1.buster_amd64.deb \
-    && rm wkhtmltox_0.12.6-1.buster_amd64.deb
 
 # Copiar la app publicada
 COPY --from=build /app/out .
 
-# Rotativa busca el binario aquí por defecto
+# Crear carpeta para Rotativa y copiar el binario
 RUN mkdir -p /app/wwwroot/Rotativa \
-    && cp /usr/local/bin/wkhtmltopdf /app/wwwroot/Rotativa/
+    && cp /usr/bin/wkhtmltopdf /app/wwwroot/Rotativa/
 
-# Configurar puerto para Railway
+# Puerto para Railway
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 EXPOSE 8080
 

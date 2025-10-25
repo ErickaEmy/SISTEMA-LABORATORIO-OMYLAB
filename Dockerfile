@@ -1,39 +1,42 @@
-# ========== ETAPA 1: BUILD ==========
+# Etapa de build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
 COPY . .
-WORKDIR /src/SistemaLaboratorio
-
-# Ignorar warnings como errores durante el build
 RUN dotnet restore
-RUN dotnet publish -c Release -o /app/out /p:TreatWarningsAsErrors=false
+RUN dotnet publish -c Release -o /app/out
 
-# ========== ETAPA 2: RUNTIME CON ROTATIVA ==========
+# Etapa final de ejecución
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 
-# Instalar wkhtmltopdf y sus dependencias (SIN verificación que falla)
+# Instalar dependencias necesarias para wkhtmltopdf
 RUN apt-get update && apt-get install -y \
-    wget \
     fontconfig \
     libfreetype6 \
+    libjpeg62-turbo \
+    libpng16-16 \
     libx11-6 \
+    libxcb1 \
     libxext6 \
     libxrender1 \
     xfonts-75dpi \
     xfonts-base \
-    libjpeg62-turbo \
-    libpng16-16 \
-    && wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6.1-2/wkhtmltox_0.12.6.1-2.bullseye_amd64.deb \
-    && apt-get install -y -f ./wkhtmltox_0.12.6.1-2.bullseye_amd64.deb \
-    && rm wkhtmltox_0.12.6.1-2.bullseye_amd64.deb \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+    wget
 
-# Copiar aplicación
+# Instalar wkhtmltopdf
+RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb \
+    && apt install -y ./wkhtmltox_0.12.6-1.buster_amd64.deb \
+    && rm wkhtmltox_0.12.6-1.buster_amd64.deb
+
+# Copiar la app publicada
 COPY --from=build /app/out .
 
-ENV PORT=8080
+# Rotativa busca el binario aquí por defecto
+RUN mkdir -p /app/wwwroot/Rotativa
+RUN cp /usr/local/bin/wkhtmltopdf /app/wwwroot/Rotativa/
+
+# Puerto Railway
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 EXPOSE 8080
 
 ENTRYPOINT ["dotnet", "SistemaLaboratorio.dll"]

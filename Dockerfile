@@ -28,9 +28,10 @@ RUN apt-get update && apt-get install -y \
     libxrender1 \
     xfonts-75dpi \
     xfonts-base \
-    wget
+    wget \
+    && rm -rf /var/lib/apt/lists/*
 
-# Instalar wkhtmltopdf
+# Instalar wkhtmltopdf desde el paquete oficial
 RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkhtmltox_0.12.6-1.buster_amd64.deb \
     && apt install -y ./wkhtmltox_0.12.6-1.buster_amd64.deb \
     && rm wkhtmltox_0.12.6-1.buster_amd64.deb
@@ -39,10 +40,10 @@ RUN wget https://github.com/wkhtmltopdf/packaging/releases/download/0.12.6-1/wkh
 COPY --from=build /app/out .
 
 # Rotativa busca el binario aquí por defecto
-RUN mkdir -p /app/wwwroot/Rotativa
-RUN cp /usr/local/bin/wkhtmltopdf /app/wwwroot/Rotativa/
+RUN mkdir -p /app/wwwroot/Rotativa \
+    && cp /usr/local/bin/wkhtmltopdf /app/wwwroot/Rotativa/
 
-# Puerto Railway
+# Configurar puerto para Railway
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 EXPOSE 8080
 

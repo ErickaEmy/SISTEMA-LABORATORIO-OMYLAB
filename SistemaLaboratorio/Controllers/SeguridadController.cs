@@ -12,11 +12,16 @@ namespace SistemaLaboratorio.Controllers
     {
         private readonly DblaboratorioContext _context;
         private readonly IEmalServices _emailService;
+        private readonly ILogger<SeguridadController> _logger;
 
-        public SeguridadController(DblaboratorioContext context, IEmalServices emailService)
+        public SeguridadController(
+            DblaboratorioContext context,
+            IEmalServices emailService,
+            ILogger<SeguridadController> logger)
         {
             _context = context;
             _emailService = emailService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -66,47 +71,63 @@ namespace SistemaLaboratorio.Controllers
             _context.EmpleadoOtp.Add(otp);
             await _context.SaveChangesAsync();
 
-            // ⚠️ IMPORTANTE: Enviar correo en BACKGROUND sin bloquear la respuesta
+            // ⚠️ TEMPORALMENTE SÍNCRONO PARA DEBUG
             var correoDestino = empleado.Correo!;
             var nombreEmpleado = empleado.Nombre;
 
-            _ = Task.Run(async () =>
+            try
             {
-                try
-                {
-                    await _emailService.EnviarCorreoAsync(
-                        correoDestino,
-                        "Código de Verificación OMYLAB",
-                        $@"
-                        <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
-                            <h2 style='color: #8B0000;'>Código de Verificación</h2>
-                            <p>Hola <strong>{nombreEmpleado}</strong>,</p>
-                            <p>Tu código de verificación es:</p>
-                            <div style='background: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;'>
-                                <h1 style='color: #8B0000; font-size: 36px; letter-spacing: 8px; margin: 0;'>{codigo}</h1>
-                            </div>
-                            <p>Este código expira en <strong>5 minutos</strong>.</p>
-                            <p style='color: #6c757d; font-size: 12px;'>Si no solicitaste este código, ignora este mensaje.</p>
-                            <hr>
-                            <p style='color: #6c757d; font-size: 12px;'>© {DateTime.Now.Year} Laboratorio Clínico OMYLAB</p>
+                _logger.LogInformation($"🚀 Intentando enviar OTP a {correoDestino}");
+
+                await _emailService.EnviarCorreoAsync(
+                    correoDestino,
+                    "Código de Verificación OMYLAB",
+                    $@"
+                    <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;'>
+                        <h2 style='color: #8B0000;'>Código de Verificación</h2>
+                        <p>Hola <strong>{nombreEmpleado}</strong>,</p>
+                        <p>Tu código de verificación es:</p>
+                        <div style='background: #f8f9fa; padding: 20px; text-align: center; border-radius: 8px; margin: 20px 0;'>
+                            <h1 style='color: #8B0000; font-size: 36px; letter-spacing: 8px; margin: 0;'>{codigo}</h1>
                         </div>
-                        "
-                    );
-                    Console.WriteLine($"✅ Correo enviado exitosamente a {correoDestino}");
-                }
-                catch (Exception ex)
+                        <p>Este código expira en <strong>5 minutos</strong>.</p>
+                        <p style='color: #6c757d; font-size: 12px;'>Si no solicitaste este código, ignora este mensaje.</p>
+                        <hr>
+                        <p style='color: #6c757d; font-size: 12px;'>© {DateTime.Now.Year} Laboratorio Clínico OMYLAB</p>
+                    </div>
+                    "
+                );
+
+                _logger.LogInformation($"✅ Correo OTP enviado exitosamente a {correoDestino}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError($"❌ ERROR CRÍTICO enviando OTP a {correoDestino}");
+                _logger.LogError($"🔴 Tipo: {ex.GetType().Name}");
+                _logger.LogError($"🔴 Mensaje: {ex.Message}");
+                _logger.LogError($"🔴 StackTrace: {ex.StackTrace}");
+
+                if (ex.InnerException != null)
                 {
-                    // Solo registrar el error en los logs, NO detener el flujo
-                    Console.WriteLine($"❌ Error enviando correo a {correoDestino}: {ex.Message}");
-                    Console.WriteLine($"Detalles: {ex.StackTrace}");
+                    _logger.LogError($"🔴 InnerException: {ex.InnerException.Message}");
                 }
-            });
+
+                // Devolver error al usuario para debug
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error al enviar correo: {ex.Message}. Revisa los logs del servidor."
+                });
+            }
 
             // Guardar temporalmente Id del empleado en TempData
             TempData["EmpleadoId2FA"] = empleado.EmpleadoId;
 
-            // ⚠️ CONTINUAR INMEDIATAMENTE sin esperar el correo
-            return Json(new { success = true, message = "Código generado. Revisa tu correo (puede tardar unos segundos)." });
+            return Json(new
+            {
+                success = true,
+                message = "Código enviado. Revisa tu correo."
+            });
         }
 
         [HttpPost]
@@ -219,24 +240,30 @@ namespace SistemaLaboratorio.Controllers
 
             return RedirectToAction("IniciarSesion", "Seguridad");
         }
-        // En SeguridadController.cs - solo para pruebas
+
+        // ENDPOINT DE PRUEBA - ELIMINAR EN PRODUCCIÓN
         [HttpGet]
         public async Task<IActionResult> TestEmail()
         {
             try
             {
+                _logger.LogInformation("🧪 TEST: Iniciando prueba de correo");
+
                 await _emailService.EnviarCorreoAsync(
-                    "luis.morales.omylab@gmail.com", // o tu correo
-                    "Test SendGrid",
-                    "<h1>Test exitoso</h1><p>SendGrid funciona correctamente</p>"
+                    "luis.morales.omylab@gmail.com",
+                    "Test SendGrid - OMYLAB",
+                    "<h1>✅ Test exitoso</h1><p>SendGrid funciona correctamente</p>"
                 );
-                return Ok("Correo enviado. Revisa tu bandeja.");
+
+                return Ok("✅ Correo enviado. Revisa tu bandeja y los logs.");
             }
             catch (Exception ex)
             {
-                return BadRequest($"Error: {ex.Message}");
+                _logger.LogError($"❌ Test falló: {ex.Message}");
+                return BadRequest($"❌ Error: {ex.Message}");
             }
         }
+
         public IActionResult Denegado()
         {
             return View("Denegado");

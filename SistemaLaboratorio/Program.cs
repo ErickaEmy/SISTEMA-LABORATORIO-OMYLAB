@@ -6,7 +6,12 @@ using SistemaLaboratorio.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Servicios
+// ========== CONFIGURACIÓN DE LOGGING ==========
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+// ========== SERVICIOS ==========
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddDbContext<DblaboratorioContext>(options =>
@@ -19,18 +24,22 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
         options.AccessDeniedPath = "/Seguridad/Denegado";
     });
 
-// Configuración externa
+// ========== CONFIGURACIÓN EXTERNA ==========
 builder.Services.Configure<SmtpSettings>(builder.Configuration.GetSection("Smtp"));
 builder.Services.Configure<TwilioSettings>(builder.Configuration.GetSection("Twilio"));
 
-// DI
+// ========== DEPENDENCY INJECTION ==========
+// Servicios de email (para OTP de login)
+builder.Services.AddTransient<IEmalServices, EmalServices>();
+
+// Otros servicios (para notificaciones de resultados, etc.)
 builder.Services.AddTransient<IEmailService, EmailService>();
 builder.Services.AddTransient<IWhatsAppService, WhatsAppService>();
-builder.Services.AddSingleton<IEmalServices, EmalServices>();
 
+// ========== BUILD APP ==========
 var app = builder.Build();
 
-// Middleware de errores
+// ========== MIDDLEWARE DE ERRORES ==========
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error/500");
@@ -43,15 +52,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Rotativa
+// ========== ROTATIVA ==========
 RotativaConfiguration.Setup(app.Environment.WebRootPath, "Rotativa");
 
-// Ruta por defecto
+// ========== RUTAS ==========
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Seguridad}/{action=IniciarSesion}/{id?}");
 
-// Puerto dinámico para Railway
+// ========== PUERTO DINÁMICO PARA RAILWAY ==========
 var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 app.Urls.Add($"http://0.0.0.0:{port}");
 

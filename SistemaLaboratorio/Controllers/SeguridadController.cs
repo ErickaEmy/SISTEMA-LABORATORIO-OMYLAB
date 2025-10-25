@@ -219,7 +219,24 @@ namespace SistemaLaboratorio.Controllers
 
             return RedirectToAction("IniciarSesion", "Seguridad");
         }
-
+        // En SeguridadController.cs - solo para pruebas
+        [HttpGet]
+        public async Task<IActionResult> TestEmail()
+        {
+            try
+            {
+                await _emailService.EnviarCorreoAsync(
+                    "luis.morales.omylab@gmail.com", // o tu correo
+                    "Test SendGrid",
+                    "<h1>Test exitoso</h1><p>SendGrid funciona correctamente</p>"
+                );
+                return Ok("Correo enviado. Revisa tu bandeja.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest($"Error: {ex.Message}");
+            }
+        }
         public IActionResult Denegado()
         {
             return View("Denegado");

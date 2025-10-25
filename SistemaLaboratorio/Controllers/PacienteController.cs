@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using iText.Commons.Actions.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -11,36 +11,22 @@ using SistemaLaboratorio.Models;
 
 namespace SistemaLaboratorio.Controllers
 {
-    /// <summary>
-    /// Controlador para la gestión de pacientes.
-    /// Permite registrar, actualizar, eliminar y ver detalles de pacientes.
-    /// </summary>
     public class PacienteController : Controller
     {
-        /// <summary>
-        /// Contexto de base de datos.
-        /// </summary>
         private readonly DblaboratorioContext _contexto;
+        private readonly ILogger<PacienteController> _logger;
 
-        /// <summary>
-        /// Constructor con inyección del contexto.
-        /// </summary>
-        public PacienteController(DblaboratorioContext contexto)
+        public PacienteController(DblaboratorioContext contexto, ILogger<PacienteController> logger)
         {
             _contexto = contexto;
+            _logger = logger;
         }
 
-        /// <summary>
-        /// Muestra la lista de todos los pacientes.
-        /// </summary>
         public async Task<IActionResult> Index()
         {
             return View(await _contexto.Paciente.ToListAsync());
         }
 
-        /// <summary>
-        /// Muestra los detalles de un paciente específico.
-        /// </summary>
         public async Task<IActionResult> Detalle(int? id)
         {
             if (id == null)
@@ -55,9 +41,6 @@ namespace SistemaLaboratorio.Controllers
             return View(paciente);
         }
 
-        /// <summary>
-        /// Muestra el formulario para registrar un nuevo paciente.
-        /// </summary>
         public IActionResult Registrar()
         {
             ViewBag.Sexos = new SelectList(new[] { "Femenino", "Masculino" });
@@ -65,9 +48,6 @@ namespace SistemaLaboratorio.Controllers
             return View();
         }
 
-        /// <summary>
-        /// Guarda el nuevo paciente registrado.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Registrar([Bind("PacienteId,Nombre,Apellidos,Dni,FechaNacimiento,Celular,Sexo,Correo,Direccion,Estado")] Paciente paciente)
@@ -77,7 +57,6 @@ namespace SistemaLaboratorio.Controllers
 
             if (ModelState.IsValid)
             {
-                // ✅ Validar si el DNI ya existe
                 var dniExistente = await _contexto.Paciente
                     .AnyAsync(p => p.Dni == paciente.Dni);
 
@@ -87,11 +66,10 @@ namespace SistemaLaboratorio.Controllers
                     return View(paciente);
                 }
 
-                paciente.Celular = "+51" + paciente.Celular; // Asegurar que el celular tenga el prefijo del país
+                paciente.Celular = "+51" + paciente.Celular;
                 _contexto.Add(paciente);
                 await _contexto.SaveChangesAsync();
 
-                // 🔑 Registrar auditoría para Registrar Paciente
                 var empleadoId = int.Parse(User.FindFirst("EmpleadoId")!.Value);
                 var auditoriaRegistrar = new HistorialAuditoria
                 {
@@ -106,16 +84,11 @@ namespace SistemaLaboratorio.Controllers
                 _contexto.HistorialAuditoria.Add(auditoriaRegistrar);
                 await _contexto.SaveChangesAsync();
 
-
                 return RedirectToAction(nameof(Index));
             }
             return View(paciente);
         }
 
-        /// <summary>
-        /// Muestra el formulario para actualizar un paciente.
-        /// Solo permite modificar Celular, Correo, Dirección y Estado.
-        /// </summary>
         public async Task<IActionResult> Actualizar(int? id)
         {
             ViewBag.Sexos = new SelectList(new[] { "Femenino", "Masculino" });
@@ -127,20 +100,14 @@ namespace SistemaLaboratorio.Controllers
             var paciente = await _contexto.Paciente.FindAsync(id);
             if (paciente == null)
                 return NotFound();
-           
 
-            // ✅ Preparar fecha formateada para input type="date"
             ViewBag.FechaNacimiento = paciente.FechaNacimiento.ToString("yyyy-MM-dd");
             return View(paciente);
         }
 
-        /// <summary>
-        /// Guarda los cambios permitidos del paciente.
-        /// Modifica solo Celular, Correo, Dirección y Estado.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Actualizar(int id, [Bind("PacienteId,Nombre, Apellidos, FechaNacimiento, Dni, Sexo, Celular,Correo,Direccion,Estado")] Paciente paciente)
+        public async Task<IActionResult> Actualizar(int id, [Bind("PacienteId,Nombre,Apellidos,FechaNacimiento,Dni,Sexo,Celular,Correo,Direccion,Estado")] Paciente paciente)
         {
             ViewBag.Sexos = new SelectList(new[] { "Femenino", "Masculino" });
             ViewBag.Estados = new SelectList(new[] { "Activo", "Inactivo" });
@@ -152,18 +119,16 @@ namespace SistemaLaboratorio.Controllers
             {
                 try
                 {
-                    // Buscar paciente original
                     var pacienteOriginal = await _contexto.Paciente.FindAsync(id);
                     if (pacienteOriginal == null)
                         return NotFound();
 
-                    paciente.Nombre = pacienteOriginal.Nombre; // Mantener nombre original
-                    paciente.Apellidos = pacienteOriginal.Apellidos; // Mantener apellidos originales   
-                    paciente.Dni = pacienteOriginal.Dni; // Mantener DNI original   
-                    paciente.FechaNacimiento = pacienteOriginal.FechaNacimiento; // Mantener fecha de nacimiento original
-                    paciente.Sexo = pacienteOriginal.Sexo; // Mantener sexo original
+                    paciente.Nombre = pacienteOriginal.Nombre;
+                    paciente.Apellidos = pacienteOriginal.Apellidos;
+                    paciente.Dni = pacienteOriginal.Dni;
+                    paciente.FechaNacimiento = pacienteOriginal.FechaNacimiento;
+                    paciente.Sexo = pacienteOriginal.Sexo;
 
-                    // Actualizar solo campos permitidos
                     pacienteOriginal.Celular = paciente.Celular;
                     pacienteOriginal.Correo = paciente.Correo;
                     pacienteOriginal.Direccion = paciente.Direccion;
@@ -171,7 +136,6 @@ namespace SistemaLaboratorio.Controllers
 
                     await _contexto.SaveChangesAsync();
 
-                    // 🔑 Registrar auditoría para Actualizar Paciente
                     var empleadoId = int.Parse(User.FindFirst("EmpleadoId")!.Value);
                     var auditoriaActualizar = new HistorialAuditoria
                     {
@@ -185,7 +149,6 @@ namespace SistemaLaboratorio.Controllers
                     };
                     _contexto.HistorialAuditoria.Add(auditoriaActualizar);
                     await _contexto.SaveChangesAsync();
-
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -195,10 +158,9 @@ namespace SistemaLaboratorio.Controllers
                         throw;
                 }
 
-
                 return RedirectToAction(nameof(Index));
             }
-            // Si falla, recargar fecha para mostrarla de nuevo
+
             var pacienteReload = await _contexto.Paciente.FindAsync(id);
             if (pacienteReload != null)
             {
@@ -207,10 +169,6 @@ namespace SistemaLaboratorio.Controllers
             return View(paciente);
         }
 
-        /// <summary>
-        /// Elimina un paciente de forma directa.
-        /// No usa vista de confirmación.
-        /// </summary>
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Eliminar(int id)
@@ -222,8 +180,6 @@ namespace SistemaLaboratorio.Controllers
             _contexto.Paciente.Remove(paciente);
             await _contexto.SaveChangesAsync();
 
-
-            // 🔑 Registrar auditoría para Eliminar Paciente
             var empleadoId = int.Parse(User.FindFirst("EmpleadoId")!.Value);
             var auditoriaEliminar = new HistorialAuditoria
             {
@@ -240,14 +196,11 @@ namespace SistemaLaboratorio.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        /// <summary>
-        /// Verifica si existe el paciente.
-        /// </summary>
         private bool ExistePaciente(int id)
         {
             return _contexto.Paciente.Any(e => e.PacienteId == id);
         }
-        // Helper para calcular edad exacta
+
         private int CalcularEdad(DateTime fechaNacimiento)
         {
             var hoy = DateTime.Today;
@@ -258,98 +211,103 @@ namespace SistemaLaboratorio.Controllers
 
         public async Task<IActionResult> HistorialDelPaciente(int pacienteId)
         {
-            // Buscar paciente
-            var paciente = await _contexto.Paciente.FindAsync(pacienteId);
-            if (paciente == null)
+            try
             {
-                return NotFound();
-            }
+                _logger.LogInformation($"Iniciando generación de historial PDF para paciente {pacienteId}");
 
-            // Obtener todos los AnalisisPaciente de ese paciente, incluyendo Resultado y Analisis
-            var listaAnalisisPaciente = await _contexto.AnalisisPaciente
-                .Where(ap => ap.PacienteId == pacienteId)
-                .Include(ap => ap.Analisis)
-                .OrderByDescending(ap => ap.FechaHoraRegistro)
-                .ToListAsync();
-
-            var edad = CalcularEdad(paciente.FechaNacimiento.ToDateTime(TimeOnly.MinValue));
-            var sexo = paciente.Sexo;
-
-            var listaAnalisis = new List<object>();
-
-            foreach (var ap in listaAnalisisPaciente)
-            {
-                // Traer resultado manualmente
-                var resultado = await _contexto.Resultados
-                    .FirstOrDefaultAsync(r => r.AnalisisPacienteId == ap.AnalisisPacienteId);
-
-                var componentes = new List<object>();
-                if (resultado != null)
+                var paciente = await _contexto.Paciente.FindAsync(pacienteId);
+                if (paciente == null)
                 {
-                    var listaCAP = await _contexto.ComponenteAnalisisPaciente
-                        .Include(cap => cap.Componente)
-                            .ThenInclude(c => c.DescripcionComponentes)
-                        .Where(cap => cap.ResultadoId == resultado.ResultadoId
-                                   && cap.AnalisisPacienteId == ap.AnalisisPacienteId)
-                        .OrderBy(cap => cap.Componente.Nombre)
-                        .ToListAsync();
-
-                    componentes = listaCAP.Select(cap => new
-                    {
-                        NombreComponente = cap.Componente.Nombre,
-                        ValorResultado = cap.ValorResultado,
-                        Resultado = cap.Resultado,
-                        Referencias = cap.Componente.DescripcionComponentes
-                            .Where(d => d.Sexo == "Ambos" || d.Sexo == sexo)
-                            .Where(d => (!d.EdadMinima.HasValue || d.EdadMinima <= edad) &&
-                                        (!d.EdadMaxima.HasValue || d.EdadMaxima >= edad))
-                            .Select(d => new {
-                                d.ValorMinimo,
-                                d.ValorMaximo,
-                                d.Unidad,
-                                d.Sexo,
-                                d.EdadMinima,
-                                d.EdadMaxima
-                            }).ToList()
-                    }).ToList<object>();
+                    _logger.LogWarning($"Paciente {pacienteId} no encontrado");
+                    return NotFound();
                 }
 
-                listaAnalisis.Add(new
-                {
-                    Analisis = new
-                    {
-                        Nombre = ap.Analisis.Nombre,
-                        TipoMuestra = ap.Analisis.TipoMuestra
-                    },
-                    AnalisisPaciente = new
-                    {
-                        FechaHoraRegistro = ap.FechaHoraRegistro,
-                        Estado = ap.Estado
-                    },
-                    Resultado = resultado != null ? new
-                    {
-                        FechaRegistro = resultado.FechaRegistro
-                    } : null,
-                    Componentes = componentes
-                });
-            }
+                _logger.LogInformation($"Paciente encontrado: {paciente.Nombre} {paciente.Apellidos}");
 
-            var viewModel = new
-            {
-                Paciente = new
-                {
-                    Dni = paciente.Dni,
-                    Nombre = paciente.Nombre,
-                    Apellidos = paciente.Apellidos,
-                    Sexo = sexo,
-                    Edad = edad
-                },
-                ListaAnalisis = listaAnalisis
-            };
+                var listaAnalisisPaciente = await _contexto.AnalisisPaciente
+                    .Where(ap => ap.PacienteId == pacienteId)
+                    .Include(ap => ap.Analisis)
+                    .OrderByDescending(ap => ap.FechaHoraRegistro)
+                    .ToListAsync();
 
-            // Si NO tiene análisis, retornar PDF con lista vacía
-            if (!listaAnalisisPaciente.Any())
-            {
+                _logger.LogInformation($"Se encontraron {listaAnalisisPaciente.Count} análisis");
+
+                var edad = CalcularEdad(paciente.FechaNacimiento.ToDateTime(TimeOnly.MinValue));
+                var sexo = paciente.Sexo;
+
+                var listaAnalisis = new List<object>();
+
+                foreach (var ap in listaAnalisisPaciente)
+                {
+                    var resultado = await _contexto.Resultados
+                        .FirstOrDefaultAsync(r => r.AnalisisPacienteId == ap.AnalisisPacienteId);
+
+                    var componentes = new List<object>();
+                    if (resultado != null)
+                    {
+                        var listaCAP = await _contexto.ComponenteAnalisisPaciente
+                            .Include(cap => cap.Componente)
+                                .ThenInclude(c => c.DescripcionComponentes)
+                            .Where(cap => cap.ResultadoId == resultado.ResultadoId
+                                       && cap.AnalisisPacienteId == ap.AnalisisPacienteId)
+                            .OrderBy(cap => cap.Componente.Nombre)
+                            .ToListAsync();
+
+                        componentes = listaCAP.Select(cap => new
+                        {
+                            NombreComponente = cap.Componente.Nombre,
+                            ValorResultado = cap.ValorResultado,
+                            Resultado = cap.Resultado,
+                            Referencias = cap.Componente.DescripcionComponentes
+                                .Where(d => d.Sexo == "Ambos" || d.Sexo == sexo)
+                                .Where(d => (!d.EdadMinima.HasValue || d.EdadMinima <= edad) &&
+                                            (!d.EdadMaxima.HasValue || d.EdadMaxima >= edad))
+                                .Select(d => new {
+                                    d.ValorMinimo,
+                                    d.ValorMaximo,
+                                    d.Unidad,
+                                    d.Sexo,
+                                    d.EdadMinima,
+                                    d.EdadMaxima
+                                }).ToList()
+                        }).ToList<object>();
+                    }
+
+                    listaAnalisis.Add(new
+                    {
+                        Analisis = new
+                        {
+                            Nombre = ap.Analisis.Nombre,
+                            TipoMuestra = ap.Analisis.TipoMuestra
+                        },
+                        AnalisisPaciente = new
+                        {
+                            FechaHoraRegistro = ap.FechaHoraRegistro,
+                            Estado = ap.Estado
+                        },
+                        Resultado = resultado != null ? new
+                        {
+                            FechaRegistro = resultado.FechaRegistro
+                        } : null,
+                        Componentes = componentes
+                    });
+                }
+
+                var viewModel = new
+                {
+                    Paciente = new
+                    {
+                        Dni = paciente.Dni,
+                        Nombre = paciente.Nombre,
+                        Apellidos = paciente.Apellidos,
+                        Sexo = sexo,
+                        Edad = edad
+                    },
+                    ListaAnalisis = listaAnalisis
+                };
+
+                _logger.LogInformation("Generando PDF con Rotativa...");
+
                 return new ViewAsPdf("PdfHistorialDelPaciente", viewModel)
                 {
                     FileName = $"Historial_{paciente.Dni}.pdf",
@@ -358,17 +316,19 @@ namespace SistemaLaboratorio.Controllers
                     CustomSwitches = "--footer-center \"Página [page] de [toPage]\" --footer-font-size \"8\" --footer-spacing \"5\""
                 };
             }
-
-            // ✅ Si SÍ tiene análisis, retornar PDF normalmente
-            return new ViewAsPdf("PdfHistorialDelPaciente", viewModel)
+            catch (Exception ex)
             {
-                FileName = $"Historial_{paciente.Dni}.pdf",
-                PageSize = Rotativa.AspNetCore.Options.Size.A4,
-                PageOrientation = Rotativa.AspNetCore.Options.Orientation.Portrait,
-                CustomSwitches = "--footer-center \"Página [page] de [toPage]\" --footer-font-size \"8\" --footer-spacing \"5\""
-            };
+                _logger.LogError($"ERROR generando PDF para paciente {pacienteId}");
+                _logger.LogError($"{ex.GetType().Name}: {ex.Message}");
+                _logger.LogError($"StackTrace: {ex.StackTrace}");
+
+                if (ex.InnerException != null)
+                {
+                    _logger.LogError($"InnerException: {ex.InnerException.Message}");
+                }
+
+                throw; // Re-lanzar para que ASP.NET maneje el error
+            }
         }
-
-
     }
 }

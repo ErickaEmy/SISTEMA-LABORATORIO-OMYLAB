@@ -1,0 +1,272 @@
+﻿@* 
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para el listado de Reportes disponibles en el sistema.
+            Permite al usuario seleccionar y generar reportes en formato PDF,
+            algunos con opciones de filtrado por fecha o empleado.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como como modelo una lista de empleados
+
+-----------------------------------------------------------------------------------
+*@
+@model List<SistemaLaboratorio.Models.Empleado>
+
+@{
+    ViewData["Title"] = "Reportes del Sistema";
+}
+
+<h1 class="mb-4">Reportes del Sistema</h1>
+
+<table class="table table-bordered">
+    <thead class="table-dark">
+        <tr>
+            <th>Reporte</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Empleados Registrados -->
+        <tr>
+            <td>Empleados Registrados</td>
+            <td>
+                <a class="btn btn-primary" href="@Url.Action("GenerarPdfEmpleados", "Reporte")">Ver todos</a>
+            </td>
+        </tr>
+
+        <!-- Listado de Citas -->
+        <tr>
+            <td>Listado de Citas</td>
+            <td>
+                <a class="btn btn-primary me-2" href="@Url.Action("GenerarPdfCitas", "Reporte")">Ver todos</a>
+                <button class="btn btn-secondary" onclick="abrirModal('citasPorFechaModal')">Por fecha</button>
+            </td>
+        </tr>
+
+        <!-- Reactivos consumidos por análisis -->
+        <tr>
+            <td>Reactivos consumidos por análisis</td>
+            <td>
+                <a class="btn btn-primary me-2" href="@Url.Action("GenerarPdfReactivosConsumidos", "Reporte")">Ver todos</a>
+                <button class="btn btn-secondary" onclick="abrirModal('reactivosConsumidosPorFechaModal')">Por fecha</button>
+            </td>
+        </tr>
+
+        <!-- Reactivos vencidos o por vencer -->
+        <tr>
+            <td>Reactivos vencidos o por vencer</td>
+            <td>
+                <a class="btn btn-primary" href="@Url.Action("GenerarPdfReactivosPorVencer", "Reporte")">Ver todos</a>
+            </td>
+        </tr>
+
+        <!-- Análisis más solicitados -->
+        <tr>
+            <td>Análisis más solicitados</td>
+            <td>
+                <a class="btn btn-primary me-2" href="@Url.Action("GenerarPdfAnalisisSolicitados", "Reporte")">Ver todos</a>
+                <button class="btn btn-secondary" onclick="abrirModal('analisisSolicitadosPorFechaModal')">Por fecha</button>
+            </td>
+        </tr>
+
+        <!-- Historial de auditoría -->
+        <tr>
+            <td>Historial de auditoría</td>
+            <td>
+                <a class="btn btn-primary me-2" href="@Url.Action("GenerarPdfHistorialAuditoria", "Reporte")">Ver todos</a>
+                <button class="btn btn-secondary" onclick="abrirModal('historialPorEmpleadoModal')">Por empleado</button>
+            </td>
+        </tr>
+
+        <!-- Reactivos más utilizados -->
+        <tr>
+            <td>Reactivos más utilizados</td>
+            <td>
+                <a class="btn btn-primary me-2" href="@Url.Action("GenerarPdfReactivosMasUtilizados", "Reporte")">Ver todos</a>
+                <button class="btn btn-secondary" onclick="abrirModal('reactivosMasUtilizadosPorFechaModal')">Por fecha</button>
+            </td>
+        </tr>
+
+        <!-- Análisis emitidos -->
+        <tr>
+            <td>Análisis emitidos</td>
+            <td>
+                <a class="btn btn-primary me-2" href="@Url.Action("GenerarPdfAnalisisEmitidos", "Reporte")">Ver todos</a>
+                <button class="btn btn-secondary me-2" onclick="abrirModal('analisisEmitidosPorFechaModal')">Por fecha</button>
+                <button class="btn btn-secondary" onclick="abrirModal('analisisEmitidosPorEmpleadoModal')">Por empleado</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<!-- ========================== -->
+<!-- Modales Por Fecha y Por Empleado -->
+<!-- ========================== -->
+<!-- Modal Citas Por Fecha -->
+<div class="modal fade" id="citasPorFechaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="get" action="@Url.Action("GenerarPdfCitasPorFecha", "Reporte")" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filtrar Citas por Fecha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>Fecha inicio</label>
+                <input type="date" class="form-control mb-2" name="fechaInicio" required>
+                <label>Fecha fin</label>
+                <input type="date" class="form-control" name="fechaFin" required>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Reactivos Consumidos Por Fecha -->
+<div class="modal fade" id="reactivosConsumidosPorFechaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="get" action="@Url.Action("GenerarPdfReactivosConsumidosPorFecha", "Reporte")" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filtrar Reactivos Consumidos por Fecha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>Fecha inicio</label>
+                <input type="date" class="form-control mb-2" name="fechaInicio" required>
+                <label>Fecha fin</label>
+                <input type="date" class="form-control" name="fechaFin" required>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+<!-- Modal Análisis Solicitados Por Fecha -->
+<div class="modal fade" id="analisisSolicitadosPorFechaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="get" action="@Url.Action("GenerarPdfAnalisisSolicitadosPorFecha", "Reporte")" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filtrar Análisis Solicitados por Fecha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>Fecha inicio</label>
+                <input type="date" class="form-control mb-2" name="fechaInicio" required>
+                <label>Fecha fin</label>
+                <input type="date" class="form-control" name="fechaFin" required>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Reactivos Más Utilizados Por Fecha -->
+<div class="modal fade" id="reactivosMasUtilizadosPorFechaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="get" action="@Url.Action("GenerarPdfReactivosMasUtilizadosPorFecha", "Reporte")" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filtrar Reactivos Más Utilizados por Fecha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>Fecha inicio</label>
+                <input type="date" class="form-control mb-2" name="fechaInicio" required>
+                <label>Fecha fin</label>
+                <input type="date" class="form-control" name="fechaFin" required>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Análisis Emitidos Por Fecha -->
+<div class="modal fade" id="analisisEmitidosPorFechaModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="get" action="@Url.Action("GenerarPdfAnalisisEmitidosPorFecha", "Reporte")" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filtrar Análisis Emitidos por Fecha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>Fecha inicio</label>
+                <input type="date" class="form-control mb-2" name="fechaInicio" required>
+                <label>Fecha fin</label>
+                <input type="date" class="form-control" name="fechaFin" required>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Historial Por Empleado -->
+<div class="modal fade" id="historialPorEmpleadoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="get" action="@Url.Action("GenerarPdfHistorialPorEmpleado", "Reporte")" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filtrar Historial por Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>Seleccionar Empleado</label>
+                <select class="form-control" name="empleadoId" required>
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var emp in Model)
+                    {
+                        <option value="@emp.EmpleadoId">@emp.Nombre @emp.Apellidos</option>
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Análisis Emitidos Por Empleado -->
+<div class="modal fade" id="analisisEmitidosPorEmpleadoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <form method="get" action="@Url.Action("GenerarPdfAnalisisEmitidosPorEmpleado", "Reporte")" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Filtrar Análisis Emitidos por Empleado</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label>Seleccionar Empleado</label>
+                <select class="form-control" name="empleadoId" required>
+                    <option value="">-- Seleccionar --</option>
+                    @foreach (var emp in Model)
+                    {
+                        <option value="@emp.EmpleadoId">@emp.Nombre @emp.Apellidos</option>
+                    }
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Scripts -->
+<script>
+    function abrirModal(id) {
+        var modal = new bootstrap.Modal(document.getElementById(id));
+        modal.show();
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

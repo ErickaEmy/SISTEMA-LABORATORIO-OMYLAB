@@ -1,0 +1,89 @@
+﻿@*  
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para la generación y visualización del reporte de 
+           "Reactivos Más Utilizados". 
+           Muestra los reactivos más usados en el laboratorio, indicando
+           su nombre y la cantidad utilizada en el rango de fechas especificado.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo una lista de objetos 
+ReactivoMasUtilizadoDto, proveniente de la capa de negocio. El reporte 
+es generado en formato HTML, preparado para exportarse a PDF. 
+Incluye cabecera con logotipo, título institucional, filtros aplicados 
+(rango de fechas) y tabla de resultados. 
+
+Se colocaron comentarios para explicar la configuración del layout, la obtención y uso del rango de fechas, 
+y la iteración sobre el modelo para presentar los datos, con el fin de mejorar la claridad y facilitar el mantenimiento.
+
+-----------------------------------------------------------------------------------
+*@
+
+@model List<SistemaLaboratorio.Models.ReactivoMasUtilizadoDto>
+
+@{
+    // RF-13: No se utiliza Layout para permitir la exportación o visualización directa de este reporte
+    Layout = null;
+
+    // Variable que almacena el rango de fechas recibido desde el controlador.
+    // Si no existe, se muestra "Todos".
+    string rango = ViewData["Rango"] as string ?? "Todos";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reactivos Más Utilizados</title>
+
+    @* RF-13: Archivo CSS externo para estilos comunes de reportes *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado del reporte: logotipo institucional y nombre del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Logotipo institucional del laboratorio *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @* Título principal del reporte *@
+    <h2 class="titulo-reporte">Reactivos Más Utilizados</h2>
+
+    @* Filtros aplicados: rango de fechas y fecha/hora de generación *@
+    <p class="filtro-derecha">Rango: @rango</p>
+    <p class="filtro-derecha">Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Tabla de resultados con encabezado y datos *@
+    <table class="contenido">
+        <thead>
+            <tr>
+                <th>Reactivo</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Itera sobre cada elemento del modelo para mostrar reactivo y cantidad *@
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.NombreReactivo</td>
+                    <td>@item.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

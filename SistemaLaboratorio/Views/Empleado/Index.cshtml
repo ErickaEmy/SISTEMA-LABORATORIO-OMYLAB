@@ -1,0 +1,106 @@
+﻿@model IEnumerable<SistemaLaboratorio.Models.Empleado>
+
+@{
+    ViewData["Title"] = "Lista de Empleados";
+}
+
+<h1 class="mb-4">Empleados</h1>
+
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <a class="btn btn-primary" asp-action="Registrar">Registrar</a>
+    <input type="text" id="buscarInput" class="form-control w-25" placeholder="Buscar empleado...">
+</div>
+
+<table class="table table-bordered table-striped" id="empleadoTabla">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+            <th>@Html.DisplayNameFor(model => model.Apellidos)</th>
+            <th>@Html.DisplayNameFor(model => model.Dni)</th>
+            <th>@Html.DisplayNameFor(model => model.FechaNacimiento)</th>
+            <th>@Html.DisplayNameFor(model => model.Celular)</th>
+            <th>@Html.DisplayNameFor(model => model.Rol)</th>
+            <th>@Html.DisplayNameFor(model => model.Estado)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                <td>@Html.DisplayFor(modelItem => item.Apellidos)</td>
+                <td>@Html.DisplayFor(modelItem => item.Dni)</td>
+                <td>@Html.DisplayFor(modelItem => item.FechaNacimiento)</td>
+                <td>@Html.DisplayFor(modelItem => item.Celular)</td>
+                <td>@Html.DisplayFor(modelItem => item.Rol)</td>
+                <td>@Html.DisplayFor(modelItem => item.Estado)</td>
+                <td>
+                    <a asp-action="Actualizar" asp-route-id="@item.EmpleadoId" class="btn btn-sm btn-warning">Actualizar</a>
+                    <a asp-action="Detalle" asp-route-id="@item.EmpleadoId" class="btn btn-sm btn-info">Detalle</a>
+                    <button type="button"
+                            class="btn btn-sm btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminar"
+                            data-id="@item.EmpleadoId"
+                            data-nombre="@item.Nombre @item.Apellidos">
+                        Eliminar
+                    </button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+<!-- Modal de Confirmación de Eliminación -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="formEliminar" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEliminarLabel">Confirmar Eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <p>¿Estás seguro de que deseas eliminar al empleado <strong id="nombreEmpleado"></strong>?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.getElementById('buscarInput').addEventListener('keyup', function () {
+            var valorBusqueda = this.value.toLowerCase();
+            var filas = document.querySelectorAll('#empleadoTabla tbody tr');
+
+            filas.forEach(function (fila) {
+                var textoFila = fila.textContent.toLowerCase();
+                fila.style.display = textoFila.includes(valorBusqueda) ? '' : 'none';
+            });
+        });
+
+         // Manejar apertura del modal y setear URL de eliminación
+        var modalEliminar = document.getElementById('modalEliminar');
+        modalEliminar.addEventListener('show.bs.modal', function (event) {
+            var boton = event.relatedTarget; // Botón que abrió el modal
+            var id = boton.getAttribute('data-id');
+            var nombre = boton.getAttribute('data-nombre');
+
+            // Mostrar nombre en el mensaje
+            modalEliminar.querySelector('#nombreEmpleado').textContent = nombre;
+
+            // Actualizar acción del formulario con la URL correcta
+            var form = modalEliminar.querySelector('#formEliminar');
+            form.action = '/Empleado/Eliminar/' + id;
+        });
+    </script>
+}

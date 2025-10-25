@@ -1,0 +1,42 @@
+﻿@*  
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-11 – Generar Predicción por Machine Learning
+Propósito: Vista web para visualizar la última predicción generada de consumo de reactivos.
+           Incluye botones para descargar el reporte en PDF y muestra la información de
+           resumen y predicciones utilizando una vista parcial para evitar duplicidad de código.
+
+Descripción general:
+Este archivo Razor recibe un objeto PrediccionesReactivoViewModel con los datos para mostrar los resúmenes y las predicciones mensuales por reactivo.
+Utiliza el layout principal de la aplicación para mantener la interfaz consistente.
+Se incluye la vista parcial para mostrar los detalles con el formato definido.
+-----------------------------------------------------------------------------------
+*@
+@model SistemaLaboratorio.Controllers.PrediccionesReactivoViewModel
+@{
+    // Título que aparecerá en el navegador y en el layout principal.
+    ViewBag.Title = "Última Predicción Generada";
+
+    // Se usa el layout principal de la aplicación para mantener cabeceras, menús y estilos.
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@* Título de la página centrado con margen superior *@
+<h2 class="text-center mt-4">Última Predicción Generada</h2>
+
+@* Botón centrado para descargar el reporte predictivo en PDF *@
+<div class="text-center mb-4">
+    <a asp-action="DescargarReportePredictivo" class="btn btn-outline-dark">
+        <i class="bi bi-file-earmark-pdf"></i> Descargar Reporte Predictivo
+    </a>
+</div>
+@* Contenedor principal que usa la grilla de Bootstrap para separación y margen superior *@
+<div class="container mt-5">
+
+    @* 
+       Inclusión de la vista parcial que muestra los resúmenes y las predicciones detalladas.
+       La vista parcial genera bloques y tablas con la información sin repetir código.
+    *@
+    @await Html.PartialAsync("_PrediccionesReactivoDetalle", Model)
+
+</div>

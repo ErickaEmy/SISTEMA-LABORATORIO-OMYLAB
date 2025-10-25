@@ -1,0 +1,101 @@
+﻿@*  
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para la generación y visualización del reporte de "Reactivos Consumidos por Análisis".
+           Presenta los reactivos utilizados en cada análisis, detallando ID, nombre
+           y cantidad total consumida, organizados por tipo de análisis.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo un diccionario cuya clave es el ID del análisis
+y el valor es una lista de objetos ReactivoConsumidoDto. Los datos se muestran agrupados
+por análisis, con su respectivo encabezado y tabla de reactivos consumidos.
+
+Se aplican buenas prácticas conforme al requerimiento RF-13, tales como:
+- Uso de archivo CSS externo para mantener separación entre estilos y lógica.
+- Inclusión de comentarios claros para cada sección, facilitando mantenimiento.
+- Centralización de datos de nombres de análisis en ViewBag para mejor legibilidad.
+
+-----------------------------------------------------------------------------------
+*@
+
+@model Dictionary<int?, List<SistemaLaboratorio.Models.ReactivoConsumidoDto>>
+
+@{
+    // RF-13: No se utiliza Layout para permitir exportar/mostrar este reporte de forma independiente.
+    Layout = null;
+
+    // Diccionario con nombres de análisis proporcionado desde el controlador vía ViewBag.
+    // La clave es el ID del análisis y el valor es su nombre.
+    var nombresAnalisis = (Dictionary<int, string>)ViewBag.NombresAnalisis ?? new();
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reactivos Consumidos por Análisis</title>
+
+    @* RF-13: Se usa archivo CSS externo (reportes.css) para mantener separación de estilos y lógica *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado con logotipo y título del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Imagen institucional del laboratorio *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @* Título principal del reporte *@
+    <h2 class="titulo-reporte">Reporte: Reactivos Consumidos por Análisis</h2>
+
+    @* Filtros del reporte: rango de fechas y fecha/hora de generación *@
+    <p class="filtro-derecha">Rango: @ViewBag.Rango</p>
+    <p class="filtro-derecha">Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Iteración sobre cada análisis contenido en el modelo *@
+    @foreach (var analisis in Model)
+    {
+        var id = analisis.Key ?? 0; // RF-13: ID del análisis (0 si es nulo)
+        var nombre = nombresAnalisis.ContainsKey(id) ? nombresAnalisis[id] : "Desconocido"; // Nombre del análisis o "Desconocido"
+
+        <div class="analisis">
+            @* Subtítulo por análisis *@
+            <h4>Análisis ID: @id — @nombre</h4>
+
+            @* Tabla de reactivos consumidos por análisis *@
+            <table class="contenido">
+                <thead>
+                    <tr>
+                        <th>Reactivo ID</th>
+                        <th>Nombre Reactivo</th>
+                        <th>Cantidad Consumida Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in analisis.Value)
+                    {
+                        <tr>
+                            <td>@item.ReactivoId</td>
+                            <td>@item.NombreReactivo</td>
+                            <td>@item.CantidadTotal</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+
+</body>
+</html>

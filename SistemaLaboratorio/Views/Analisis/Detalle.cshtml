@@ -1,0 +1,58 @@
+﻿@model SistemaLaboratorio.Models.Analisis
+
+@{
+    ViewData["Title"] = "Detalle del Análisis";
+}
+
+<h1 class="mb-4">Detalle del Análisis</h1>
+
+<div class="container">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-4">Nombre</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Nombre)</dd>
+
+                <dt class="col-sm-4">Tipo de Muestra</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.TipoMuestra)</dd>
+
+                <dt class="col-sm-4">Condición</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Condicion)</dd>
+
+                <dt class="col-sm-4">Comentario</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Comentario)</dd>
+
+                <dt class="col-sm-4">Precio (S/)</dt>
+                <dd class="col-sm-8">@Html.DisplayFor(model => model.Precio)</dd>
+
+                <dt class="col-sm-4">Estado</dt>
+                <dd class="col-sm-8">
+                    @(Model.Estado ? "Activo" : "Inactivo")
+                </dd>
+            </dl>
+
+            <hr />
+
+            <h5 class="mt-4">Componentes Asociados</h5>
+
+            @if (Model.AnalisisComponentes != null && Model.AnalisisComponentes.Any())
+            {
+                <ul class="list-group mb-4">
+                    @foreach (var item in Model.AnalisisComponentes)
+                    {
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>@item.Componente.Nombre</span>
+                            <span class="badge bg-primary">@item.Componente.Categoria</span>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">No hay componentes registrados para este análisis.</p>
+            }
+
+            <a asp-action="Index" class="btn btn-secondary">Regresar a la Lista</a>
+        </div>
+    </div>
+</div>

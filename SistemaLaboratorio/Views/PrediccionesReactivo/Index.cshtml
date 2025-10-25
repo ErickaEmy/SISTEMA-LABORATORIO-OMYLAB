@@ -1,0 +1,110 @@
+﻿@*  
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 16/08/2025
+Requerimiento: RF-11 – Generar Predicción por Machine Learning
+Propósito: Vista para la gestión del historial de predicciones de reactivos, mostrando resúmenes de tendencias, meses de mayor y menor consumo, y conclusiones
+  de cada predicción. Permite entrenar el modelo, generar nuevas predicciones
+  y navegar por el historial paginado.
+Descripción general:
+Esta vista Razor recibe como modelo un objeto HistorialPaginadoViewModel que contiene una lista de resúmenes de predicciones y datos de paginación. Incluye botones para entrenar el modelo y generar predicciones, tabla central con información detallada de cada predicción, mensajes de estado mediante TempData, y controles de paginación para navegar entre páginas de resultados. La integración con la lógica del controlador permite habilitar o deshabilitar botones según el estado del entrenamiento y muestra información crítica del laboratorio de manera clara y estructurada.
+-----------------------------------------------------------------------------------
+*@
+
+@model SistemaLaboratorio.Controllers.HistorialPaginadoViewModel
+
+@{
+    // Título de la vista mostrado en la pestaña del navegador
+    ViewBag.Title = "Módulo de IA y Machine Learning";
+
+    // Layout principal de la aplicación para mantener consistencia visual con otras vistas
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="text-center mt-4">Módulo de IA y Machine Learning</h2>
+
+<div class="container mt-4">
+
+    @* Mensaje de éxito o error proveniente del controlador, se muestra en un alert de Bootstrap *@
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-info text-center">@TempData["Mensaje"]</div>
+    }
+
+    @* Botones de acción: Entrenar Modelo y Predecir. Predecir se habilita solo si el entrenamiento se realizó *@
+    <div class="text-center mb-4">
+        <form asp-action="Entrenar" method="post" class="d-inline">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-cpu"></i> Entrenar Modelo
+            </button>
+        </form>
+
+        <a asp-action="Predecir" class="btn btn-success ms-2 @(TempData["Entrenado"] == null ? "disabled" : "")">
+            <i class="bi bi-graph-up"></i> Predecir
+        </a>
+    </div>
+    @* Tabla que presenta el historial de predicciones, con soporte para scroll horizontal (table-responsive) *@
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center">
+            <thead class="table-dark">
+                <tr>
+                    @* Encabezados de la tabla que describen las columnas principales *@
+                    <th># Predicción</th>
+                    <th>Reactivo</th>
+                    <th>Tendencia Promedio</th>
+                    <th>Mes Mayor Consumo</th>
+                    <th>Mes Menor Consumo</th>
+                    <th>Conclusión</th>
+                </tr>
+            </thead>
+            <tbody>
+                @* Iteración sobre los resúmenes en el modelo para rellenar cada fila de la tabla *@
+                @foreach (var item in Model.Resumenes)
+                {
+                    <tr>
+                        @* Número de predicción único generado por el sistema *@
+                        <td>@item.NumeroPrediccion</td>
+
+                        @* Nombre del reactivo correspondiente a la predicción *@
+                        <td>@item.NombreReactivo</td>
+
+                        @* Tendencia promedio del consumo expresada como porcentaje con dos decimales *@
+                        <td>@item.TendenciaPromedio?.ToString("0.00")%</td>
+
+                        @* Mes con mayor consumo proyectado para el reactivo *@
+                        <td>@item.MesMayorConsumo?.ToString("MMMM yyyy")</td>
+
+                        @* Mes con menor consumo proyectado para el reactivo *@
+                        <td>@item.MesMenorConsumo?.ToString("MMMM yyyy")</td>
+
+                        @* Conclusión automática generada por el sistema para recomendaciones de compra o gestión *@
+                        <td>@item.TextoConclusion</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @* Controles de paginación para navegar entre páginas del historial *@
+    <nav aria-label="Paginación">
+        <ul class="pagination justify-content-center">
+            @* Botón para ir a la página anterior, deshabilitado si ya se está en la primera página *@
+            <li class="page-item @(Model.PaginaActual == 1 ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { page = Model.PaginaActual - 1 })">Anterior</a>
+            </li>
+
+            @* Indicador de la página actual y total de páginas, deshabilitado para no ser clickeable *@
+            <li class="page-item disabled">
+                <span class="page-link">
+                    Página @Model.PaginaActual de @Model.TotalPaginas
+                </span>
+            </li>
+
+            @* Botón para ir a la página siguiente, deshabilitado si ya se está en la última página *@
+            <li class="page-item @(Model.PaginaActual == Model.TotalPaginas ? "disabled" : "")">
+                <a class="page-link" href="@Url.Action("Index", new { page = Model.PaginaActual + 1 })">Siguiente</a>
+            </li>
+        </ul>
+    </nav>
+
+</div>

@@ -1,0 +1,152 @@
+﻿@*/*
+ -----------------------------------------------------------------------------------
+ Autor: Ericka Esther Martinez Yufra
+ Fecha: 09/08/2025
+ Requerimiento: RF-08 – Gestión de Resultados
+ Caso de uso: CU-08 – Gestionar Resultados
+ Propósito: Vista Razor para la gestión integral de los resultados de análisis clínicos realizados.
+ Permite registrar nuevos resultados, buscar resultados previos, consultar el detalle de cada uno
+ y descargar los resultados en formato PDF. 
+ Restricción: Una vez guardados, los resultados no pueden ser modificados, 
+ garantizando así la integridad y confiabilidad de la información clínica.
+ Descripción general:
+ Esta vista recibe como modelo una colección de objetos Resultado.
+ Presenta una tabla con los resultados registrados, con opciones de filtrado dinámico
+ por nombre, apellido o DNI, así como descarga de resultados cuando el estado sea "Completado".
+ Incluye controles condicionales para mostrar acciones disponibles en función del estado
+ y mensajes de error si ocurre un problema durante la descarga.
+ Se emplea Bootstrap para el diseño responsivo y estilos de la interfaz.
+ -----------------------------------------------------------------------------------
+*/*@
+
+@model IEnumerable<SistemaLaboratorio.Models.Resultado>
+
+@{
+    // Define el título que se mostrará en el encabezado de la página
+    ViewData["Title"] = "Gestión de Resultados";
+}
+
+<!-- Encabezado principal de la vista -->
+<h2 class="mb-4">Gestión de Resultados</h2>
+
+@* Mensaje de error mostrado en caso de que ocurra algún problema al descargar un resultado *@
+@if (TempData["ErrorDescarga"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <strong>Error:</strong> @TempData["ErrorDescarga"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
+<!-- Contenedor principal con estilo de tarjeta para los filtros y la tabla -->
+<div class="card p-4 shadow-sm mb-4">
+
+    <!-- Filtro de búsqueda por nombre, apellido o DNI -->
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label for="busqueda" class="form-label">Buscar por nombre, apellido o DNI:</label>
+            <input type="text" id="busqueda" class="form-control"
+                   placeholder="Escriba para filtrar..." onkeyup="filtrarTabla()">
+        </div>
+    </div>
+
+    <!-- Tabla responsiva que muestra los resultados registrados -->
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped" id="tablaResultados">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha del análisis</th>
+                    <th>DNI</th>
+                    <th>Nombre del paciente</th>
+                    <th>Análisis</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @* Iteración sobre cada resultado recibido en el modelo *@
+                @foreach (var resultado in Model)
+                {
+                    <tr>
+                        <!-- Fecha de registro del resultado en formato corto -->
+                        <td>@resultado.FechaRegistro.ToShortDateString()</td>
+                        <!-- Documento de identidad del paciente -->
+                        <td>@resultado.Paciente.Dni</td>
+                        <!-- Nombre completo del paciente -->
+                        <td>@resultado.Paciente.Nombre @resultado.Paciente.Apellidos</td>
+                        <!-- Nombre del análisis clínico realizado -->
+                        <td>@resultado.Analisis.Nombre</td>
+                        <!-- Estado actual del resultado (Pendiente, Completado, etc.) -->
+                        <td>@resultado.Estado</td>
+                        <td class="text-center">
+                            @* Si el estado es "Pendiente", permite actualizar el resultado *@
+                            @if (resultado.Estado == "Pendiente")
+                            {
+                                <a asp-action="ActualizarResultado"
+                                   asp-route-id="@resultado.ResultadoId"
+                                   class="btn btn-sm btn-success">Actualizar Resultado</a>
+                            }
+
+                            @* Acción siempre disponible para ver el detalle del resultado *@
+                            <a asp-action="Detalle"
+                               asp-route-id="@resultado.ResultadoId"
+                               class="btn btn-sm btn-warning">Ver detalle</a>
+
+                            @* Si el estado es "Completado", permite descargar el resultado en PDF *@
+                            @if (resultado.Estado == "completado")
+                            {
+                                <a asp-action="ResultadoDelPaciente"
+                                   asp-route-id="@resultado.ResultadoId"
+                                   class="btn btn-sm btn-primary">Descargar Resultado</a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@* Mensaje informativo cuando no existen resultados en el modelo *@
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">
+        No se encontraron resultados con los criterios actuales.
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Función para filtrar la tabla dinámicamente en base al texto ingresado
+        function filtrarTabla() {
+            const input = document.getElementById("busqueda").value.toLowerCase();
+            const filas = document.querySelectorAll("#tablaResultados tbody tr");
+
+            filas.forEach(fila => {
+                const textoFila = fila.innerText.toLowerCase();
+                fila.style.display = textoFila.includes(input) ? "" : "none";
+            });
+        }
+
+        // Función para filtrar resultados por un rango de fechas (inicio - fin)
+        // Permite mostrar únicamente las filas que cumplen con el rango seleccionado
+        function filtrarPorFecha() {
+            const fechaInicio = new Date(document.getElementById("fechaInicio").value);
+            const fechaFin = new Date(document.getElementById("fechaFin").value);
+            const filas = document.querySelectorAll("#tablaResultados tbody tr");
+
+            filas.forEach(fila => {
+                const fechaTexto = fila.cells[0].innerText.trim();
+                const fecha = new Date(fechaTexto);
+
+                if (!isNaN(fechaInicio) && !isNaN(fechaFin)) {
+                    if (fecha >= fechaInicio && fecha <= fechaFin) {
+                        fila.style.display = "";
+                    } else {
+                        fila.style.display = "none";
+                    }
+                }
+            });
+        }
+    </script>
+}

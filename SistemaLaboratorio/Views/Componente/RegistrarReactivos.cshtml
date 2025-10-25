@@ -1,0 +1,68 @@
+﻿@model dynamic
+@{
+    ViewData["Title"] = "Registrar Reactivos para el Componente";
+    var componente = ViewBag.Componente as SistemaLaboratorio.Models.Componente;
+    var reactivos = ViewBag.Reactivos as List<SistemaLaboratorio.Models.Reactivo>;
+    var reactivosAsociados = ViewBag.ReactivosAsociados as List<SistemaLaboratorio.Models.ReactivoComponente>;
+}
+
+<h2>Asociar Reactivos al Componente: @componente?.Nombre</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<hr />
+
+<h4>Agregar un nuevo reactivo asociado</h4>
+<form asp-action="RegistrarReactivoAsociado" method="post">
+    <input type="hidden" name="componenteId" value="@componente?.ComponenteId" />
+
+    <div class="form-group">
+        <label for="reactivoId">Reactivo</label>
+        <select name="reactivoId" class="form-control" required>
+            <option value="">-- Seleccione --</option>
+            @foreach (var reactivo in reactivos)
+            {
+                <option value="@reactivo.ReactivoId">@reactivo.Nombre</option>
+            }
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="cantidad">Cantidad requerida</label>
+        <input type="number" name="cantidad" class="form-control" min="1" required />
+    </div>
+    <br />
+    <button type="submit" class="btn btn-primary">Agregar Reactivo</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+
+<hr />
+
+<h4>Reactivos actualmente asociados</h4>
+@if (reactivosAsociados != null && reactivosAsociados.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Reactivo</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var rc in reactivosAsociados)
+            {
+                <tr>
+                    <td>@rc.Reactivo.Nombre</td>
+                    <td>@rc.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay reactivos asociados aún.</p>
+}

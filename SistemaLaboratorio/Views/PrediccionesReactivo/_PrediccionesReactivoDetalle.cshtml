@@ -1,0 +1,110 @@
+﻿@*  
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-11 – Generar Predicción por Machine Learning
+Propósito: Vista parcial que muestra los resúmenes de reactivos y sus predicciones mensuales,
+           reutilizable para diferentes vistas como reportes PDF o vistas web.
+
+Descripción general:
+Esta vista parcial recibe el modelo PrediccionesReactivoViewModel y presenta:
+- Tarjetas o bloques con resumen estadístico por reactivo (tendencia, consumos máximos y mínimos, conclusión).
+- Tablas detalladas con las predicciones mensuales de consumo para cada reactivo.
+Se recomienda incluir esta vista parcial en otras vistas para evitar duplicación de código.
+-----------------------------------------------------------------------------------
+*@
+@model SistemaLaboratorio.Controllers.PrediccionesReactivoViewModel
+@* 
+   Contenedor principal que muestra resumen estadístico y conclusiones por cada reactivo.
+   Se itera sobre la colección de resúmenes (Model.Resumenes) recibida desde el controlador.
+*@
+<div>
+    @foreach (var resumen in Model.Resumenes)
+    {
+        @* 
+           Cada resumen se presenta dentro de un bloque con borde y padding para separación visual.
+           El nombre del reactivo se destaca en color primario.
+        *@
+        <div class="border p-3 mb-4">
+            <h4 class="text-primary">@resumen.NombreReactivo</h4>
+            @* 
+               Presenta la tendencia promedio mensual con formato de porcentaje con dos decimales.
+               Utiliza operador ?. para manejar posibles valores nulos.
+            *@
+            <p><strong>Tendencia promedio:</strong> @resumen.TendenciaPromedio?.ToString("0.00")% mensual</p>
+            @* 
+               Muestra el mes con mayor consumo esperado, formateado a nombre completo y año.
+               Uso de formato "MMMM yyyy" para claridad.
+            *@
+            <p><strong>Mayor consumo:</strong> @resumen.MesMayorConsumo?.ToString("MMMM yyyy")</p>
+
+            @* 
+               Muestra el mes con menor consumo esperado de forma similar.
+            *@
+            <p><strong>Menor consumo:</strong> @resumen.MesMenorConsumo?.ToString("MMMM yyyy")</p>
+
+            @* 
+               Texto resumen o conclusión generado dinámicamente que interpreta las tendencias y predicciones.
+               Se muestra con negrita para enfatizar su importancia.
+            *@
+            <p><strong>Conclusión:</strong> @resumen.TextoConclusion</p>
+        </div>
+    }
+</div>
+
+@* 
+   Sección de tablas detalladas donde se listan las predicciones mensuales por cada reactivo.
+   Cada tabla está separada por reactivo para facilitar lectura y análisis individual.
+*@
+<div>
+    @foreach (var resumen in Model.Resumenes)
+    {
+        <div class="mb-5">
+            @* 
+               Título de sección que indica a qué reactivo corresponden las predicciones listadas.
+            *@
+            <h5 class="subtitulo">Predicciones: @resumen.NombreReactivo</h5>
+
+            @* 
+               Tabla con clases para estilo uniforme definida en archivo CSS externo.
+               Contiene encabezados que describen el contenido de cada columna.
+            *@
+            <table class="contenido">
+                <thead>
+                    <tr>
+                        <th>Número de Predicción</th>
+                        <th>Mes</th>
+                        <th>Consumo Esperado</th>
+                        <th>Porcentaje Cambio</th>
+                        <th>Fecha de Generación</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* 
+                       Itera sobre el diccionario de predicciones agrupadas por ReactivoId.
+                       Esto asegura mostrar solo predicciones asociadas al reactivo actual.
+                    *@
+                    @foreach (var pred in Model.PrediccionesPorReactivo[resumen.ReactivoId])
+                    {
+                        <tr>
+                            @* Número secuencial que identifica la predicción *@
+                            <td>@pred.NumeroPrediccion</td>
+
+                            @* Mes predicho, formateado a nombre completo y año para legibilidad *@
+                            <td>@pred.Mes?.ToString("MMMM yyyy")</td>
+
+                            @* Valor esperado de consumo para ese mes específico *@
+                            <td>@pred.ConsumoEsperado</td>
+
+                            @* Porcentaje de cambio respecto a la predicción anterior, con dos decimales *@
+                            <td>@pred.PorcentajeCambio?.ToString("0.00")%</td>
+
+                            @* Fecha y hora exacta en que se generó la predicción para auditoría *@
+                            <td>@pred.FechaGeneracion.ToString("yyyy-MM-dd HH:mm")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,56 @@
+﻿@model SistemaLaboratorio.Models.CitaAnalisis
+@{
+    ViewData["Title"] = "Agregar Análisis a Cita";
+}
+
+<h3>Agregar análisis a la cita @ViewData["CitaId"]</h3>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+<form asp-action="Registrar">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    @* ---- CITA ---- *@
+    @if ((bool?)ViewBag.FijarCita == true)
+    {
+        <input type="hidden" asp-for="CitaId" value="@ViewData["CitaId"]" />
+        <p><strong>Cita #:</strong> @ViewData["CitaId"]</p>
+    }
+    else
+    {
+        <label asp-for="CitaId"></label>
+        <select asp-for="CitaId"
+                asp-items="@(ViewData["CitaId"] as SelectList)"
+                class="form-control"></select>
+    }
+
+    @* ---- ANÁLISIS ---- *@
+    <label asp-for="AnalisisId" class="control-label"></label>
+    <select asp-for="AnalisisId"
+            asp-items="@(ViewData["AnalisisId"] as SelectList)"
+            class="form-control">
+        <option value="">Seleccione un análisis</option>
+    </select>
+    <span asp-validation-for="AnalisisId" class="text-danger"></span>
+
+    <br />
+
+    <button type="submit" name="continuar" value="si" class="btn btn-primary">
+        Guardar y agregar otro
+    </button>
+
+    <button type="submit" name="continuar" value="no" class="btn btn-success">
+        Guardar y terminar
+    </button>
+
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

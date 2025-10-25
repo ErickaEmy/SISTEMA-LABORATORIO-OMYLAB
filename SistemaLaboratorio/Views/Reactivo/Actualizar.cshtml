@@ -1,0 +1,71 @@
+﻿@model SistemaLaboratorio.Models.Reactivo
+
+@{
+    ViewData["Title"] = "Actualizar Reactivo";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Actualizar Reactivo</h2>
+
+    <form asp-action="Actualizar" method="post">
+        @* Campo oculto para ID *@
+        <input type="hidden" asp-for="ReactivoId" />
+
+        <input type="hidden" asp-for="CantidadTotal" />
+        <input type="hidden" asp-for="CapacidadTotal" />
+        <input type="hidden" asp-for="Disponibilidad" />
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input asp-for="Nombre" class="form-control" readonly />
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Cantidad" class="form-label"></label>
+                <input asp-for="Cantidad" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Cantidad" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Capacidad" class="form-label"></label>
+                <input asp-for="Capacidad" class="form-control" readonly />
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label class="form-label">Fecha de Ingreso</label>
+                <input class="form-control" type="date" value="@ViewBag.FechaIngreso" readonly />
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Fecha de Vencimiento</label>
+                <input class="form-control" type="date" value="@ViewBag.FechaVencimiento" readonly />
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Proveedor" class="form-label"></label>
+                <input asp-for="Proveedor" class="form-control" />
+                <span asp-validation-for="Proveedor" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label asp-for="Presentacion" class="form-label"></label>
+                <input asp-for="Presentacion" class="form-control" />
+                <span asp-validation-for="Presentacion" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

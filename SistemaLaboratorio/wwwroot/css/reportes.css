@@ -1,0 +1,62 @@
+﻿body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+    font-size: 12px;
+}
+
+.encabezado {
+    width: 100%;
+    border-bottom: 2px solid #333;
+    margin-bottom: 30px;
+    padding-bottom: 10px;
+}
+
+    .encabezado table {
+        width: 100%;
+    }
+
+    .encabezado img {
+        width: 120px;
+    }
+
+    .encabezado .titulo {
+        text-align: right;
+        font-size: 22px;
+        font-weight: bold;
+    }
+
+h2 {
+    text-align: center;
+    margin-top: 0;
+    font-size: 20px;
+}
+
+p {
+    margin-top: 5px;
+    text-align: right;
+    font-size: 12px;
+}
+
+table.contenido {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+}
+
+    table.contenido th, table.contenido td {
+        border: 1px solid #555;
+        padding: 6px;
+        text-align: center;
+    }
+
+    table.contenido th {
+        background-color: #ddd;
+    }
+
+.font-small {
+    font-size: 10px;
+}
+
+.table-compact th, .table-compact td {
+    padding: 4px;
+}

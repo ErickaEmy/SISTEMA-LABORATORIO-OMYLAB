@@ -1,0 +1,102 @@
+﻿@model SistemaLaboratorio.Models.Cita
+
+@{
+    ViewData["Title"] = "Registrar Cita";
+}
+
+<h1 class="mb-4">Registrar Cita</h1>
+
+<div class="card shadow rounded-3">
+    <div class="card-body">
+        <form asp-action="Registrar" class="row g-3">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="col-md-6">
+                <label for="PacienteId" class="form-label fw-semibold">Buscar Paciente (DNI o Nombre)</label>
+                <select id="PacienteId" name="PacienteId" class="form-control"></select>
+                <span asp-validation-for="PacienteId" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Fecha" class="form-label fw-semibold"></label>
+                <input asp-for="Fecha" class="form-control" type="date" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                <span asp-validation-for="Fecha" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Hora" class="form-label fw-semibold"></label>
+                <select asp-for="Hora" class="form-select">
+                    <option value="">Seleccione una hora</option>
+                    @{
+                        TimeSpan horaInicio = new TimeSpan(7, 0, 0);
+                        TimeSpan horaFin = new TimeSpan(17, 0, 0);
+                        TimeSpan intervalo = new TimeSpan(0, 30, 0);
+
+                        for (TimeSpan hora = horaInicio; hora <= horaFin; hora += intervalo)
+                        {
+                            string valor = hora.ToString(@"hh\:mm");
+                            <option value="@valor">@valor</option>
+                        }
+                    }
+                </select>
+                <span asp-validation-for="Hora" class="text-danger"></span>
+            </div>
+           
+            <div class="col-md-6">
+                <label asp-for="Sede" class="form-label fw-semibold"></label>
+                <select asp-for="Sede" class="form-select">
+                    <option value="">Seleccione una sede</option>
+                    <option value="Blondel">Blondel</option>
+                    <option value="Solidaridad">Solidaridad</option>
+                    <option value="Centro">Centro</option>
+                </select>
+                <span asp-validation-for="Sede" class="text-danger"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="Comentario" class="form-label fw-semibold"></label>
+                <textarea asp-for="Comentario" class="form-control" rows="2"></textarea>
+                <span asp-validation-for="Comentario" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+                <a asp-action="Index" class="btn btn-secondary">Regresar a la Lista</a>
+                <button type="submit" class="btn btn-primary">Registrar Cita</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    
+    <script>
+        $(document).ready(function () {
+            $('#PacienteId').select2({
+                placeholder: "Buscar paciente por DNI o nombre",
+                allowClear: true,
+                minimumInputLength: 2,
+                ajax: {
+                    url: '/Cita/BuscarPorDNIoNombre',
+                    dataType: 'json',
+                    delay: 300,
+                    data: function (params) {
+                        return {
+                            filtro: params.term
+                        };
+                    },
+                    processResults: function (data) {
+                        return {
+                            results: data.map(function (paciente) {
+                                return {
+                                    id: paciente.pacienteId,
+                                    text: paciente.dni + ' - ' + paciente.nombres + ' ' + paciente.apellidos
+                                };
+                            })
+                        };
+                    },
+                    cache: true
+                }
+            });
+        });
+    </script>
+}

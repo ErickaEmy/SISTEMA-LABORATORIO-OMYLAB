@@ -1,0 +1,63 @@
+﻿
+@model dynamic
+@{
+    ViewData["Title"] = "Asociar Componentes a Análisis";
+    var analisis = ViewBag.Analisis as SistemaLaboratorio.Models.Analisis;
+    var componentes = ViewBag.Componentes as List<SistemaLaboratorio.Models.Componente>;
+    var componentesAsociados = ViewBag.ComponentesAsociados as List<SistemaLaboratorio.Models.AnalisisComponente>;
+}
+
+<h2>Asociar Componentes al Análisis: @analisis?.Nombre</h2>
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+<hr />
+
+<h4>Agregar un nuevo componente</h4>
+<form asp-action="RegistrarComponente" method="post">
+    <input type="hidden" name="analisisId" value="@analisis?.AnalisisId" />
+
+    <div class="form-group">
+        <label for="componenteId">Componente</label>
+        <select name="componenteId" class="form-control" required>
+            <option value="">-- Seleccione --</option>
+            @foreach (var componente in componentes)
+            {
+                <option value="@componente.ComponenteId">@componente.Nombre</option>
+            }
+        </select>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Agregar Componente</button>
+    <a asp-action="Index" class="btn btn-secondary">Volver</a>
+</form>
+
+<hr />
+
+<h4>Componentes actualmente asociados</h4>
+@if (componentesAsociados != null && componentesAsociados.Any())
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Componente</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ac in componentesAsociados)
+            {
+                <tr>
+                    <td>@ac.Componente.Nombre</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No hay componentes asociados aún.</p>
+}

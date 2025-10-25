@@ -1,0 +1,58 @@
+﻿@model SistemaLaboratorio.Models.Cita
+
+@{
+    ViewData["Title"] = "Detalles de Cita";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-sm rounded-3">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">Detalles de la Cita</h4>
+        </div>
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">Fecha</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Fecha)</dd>
+
+                <dt class="col-sm-3">Hora</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Hora)</dd>
+
+                <dt class="col-sm-3">Estado</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Estado)</dd>
+
+                <dt class="col-sm-3">Sede</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Sede)</dd>
+
+                <dt class="col-sm-3">Comentario</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Comentario)</dd>
+
+                <dt class="col-sm-3">Empleado</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Empleado.Apellidos)</dd>
+
+                <dt class="col-sm-3">Paciente</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Paciente.Apellidos)</dd>
+            </dl>
+
+            <h5 class="mt-4">Análisis asociados</h5>
+            <hr />
+            @if (Model.CitaAnalisis != null && Model.CitaAnalisis.Any())
+            {
+                <ul class="list-group mb-3">
+                    @foreach (var item in Model.CitaAnalisis)
+                    {
+                        <li class="list-group-item">@item.Analisis.Nombre</li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Ninguno</p>
+            }
+
+            <div class="mt-4">
+
+                <a asp-action="Index" class="btn btn-secondary">Regresar a la Lista</a>
+            </div>
+        </div>
+    </div>
+</div>

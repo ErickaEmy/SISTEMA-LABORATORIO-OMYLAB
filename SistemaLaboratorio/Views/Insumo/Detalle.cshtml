@@ -1,0 +1,35 @@
+﻿@model SistemaLaboratorio.Models.Insumo
+
+@{
+    ViewData["Title"] = "Detalle de Insumo";
+}
+
+<h1 class="mb-4">Detalle de Insumo</h1>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">@Model.Nombre</h5>
+
+        <dl class="row">
+            <dt class="col-sm-4">Descripción</dt>
+            <dd class="col-sm-8">@Model.Descripcion</dd>
+
+            <dt class="col-sm-4">Cantidad Disponible</dt>
+            <dd class="col-sm-8">@Model.CantidadDisponible</dd>
+
+            <dt class="col-sm-4">Unidad de Medida</dt>
+            <dd class="col-sm-8">@Model.UnidadMedida</dd>
+
+            <dt class="col-sm-4">Fecha de Vencimiento</dt>
+            <dd class="col-sm-8">@Model.FechaVencimiento.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">@Model.Estado</dd>
+        </dl>
+
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+            
+        </div>
+    </div>
+</div>

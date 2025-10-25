@@ -1,0 +1,105 @@
+﻿@* 
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para la generación y visualización del reporte de "Historial de Auditoría".
+           Muestra de manera tabular los registros de auditoría generados en el sistema,
+           incluyendo actividad realizada, descripción, comentarios, ID de la entidad,
+           tipo de acción, fecha y empleado responsable.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo una lista de objetos HistorialAuditoriaDto
+y genera un reporte en formato HTML listo para impresión o exportación a PDF.
+
+Se aplican buenas prácticas conforme al requerimiento RF-13, tales como:
+- Centralización de estilos en archivo CSS externo para mantener consistencia.
+- Estandarización en presentación de reportes para mejorar mantenibilidad.
+- Documentación técnica que asegura trazabilidad con el requerimiento funcional.
+
+-----------------------------------------------------------------------------------
+*@
+
+@model List<SistemaLaboratorio.Models.HistorialAuditoriaDto>
+
+@{
+    // RF-13: Se desactiva Layout para permitir la exportación independiente del reporte
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Historial de Auditoría</title>
+    @* RF-13: Estilos movidos a archivo CSS externo para estandarizar y mantener consistencia *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado institucional con logo y nombre del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Logo institucional *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @* Título principal del reporte *@
+    <h2>Historial de Auditoría</h2>
+
+    @* Fecha y hora en que se genera el reporte *@
+    <p>Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Tabla de resultados: muestra los registros de auditoría obtenidos del modelo *@
+    <table class="contenido">
+        <thead>
+            <tr>
+                <th>Asunto</th>
+                <th>Descripción</th>
+                <th>Comentario</th>
+                <th>Entidad ID</th>
+                <th>Acción</th>
+                <th>Fecha</th>
+                <th>Empleado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* RF-13: Itera sobre la lista de historial para mostrar cada registro *@
+            @foreach (var h in Model)
+            {
+                <tr>
+                    @* Nombre de la actividad registrada *@
+                    <td>@h.Actividad</td>
+
+                    @* Descripción detallada de la acción *@
+                    <td>@h.Descripcion</td>
+
+                    @* Comentario opcional sobre el evento *@
+                    <td>@h.Comentario</td>
+
+                    @* Identificador único de la entidad afectada *@
+                    <td>@h.EntidadId</td>
+
+                    @* Tipo de acción realizada (Crear, Modificar, Eliminar, etc.) *@
+                    <td>@h.Accion</td>
+
+                    @* Fecha y hora exacta del evento de auditoría *@
+                    <td>@h.Fecha.ToString("dd/MM/yyyy HH:mm")</td>
+
+                    @* Nombre completo del empleado responsable *@
+                    <td>@h.EmpleadoNombre</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

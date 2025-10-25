@@ -1,0 +1,117 @@
+﻿@* 
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para la generación y visualización del reporte de "Listado de Citas".
+           Presenta el detalle de las citas agendadas, incluyendo información de 
+           paciente, empleado, fecha, hora, sede, análisis solicitado y precio.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo una lista de objetos CitaAnalisis,
+mostrando en una tabla cada registro de cita junto con sus datos asociados. 
+Se eliminó el bloque <style> interno y se implementó la referencia a un archivo 
+CSS externo (reportes.css) para mantener la separación de responsabilidades 
+entre la lógica y la presentación.  
+Se añadieron comentarios descriptivos para clarificar la intención de cada bloque 
+y se aplicaron las buenas prácticas de codificación definidas para el proyecto.
+-----------------------------------------------------------------------------------
+*@
+
+@model List<SistemaLaboratorio.Models.CitaAnalisis>
+
+@{
+    // RF-13: No se utiliza Layout para permitir exportar/mostrar este reporte de forma independiente.
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Listado de Citas</title>
+    @* RF-13: Se reemplazó el bloque <style> por un archivo CSS externo para mejorar la mantenibilidad *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado institucional con logotipo y nombre del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Imagen del logo institucional *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @* Título principal del reporte *@
+    <h2>Listado de Citas</h2>
+
+    @* Fecha y hora exacta de generación del reporte *@
+    <p>Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Muestra el rango de fechas filtrado, solo si fue enviado desde el controlador *@
+    @if (ViewBag.Rango != null)
+    {
+        <p>Rango: @ViewBag.Rango</p>
+    }
+
+    @* Tabla que lista el detalle de las citas *@
+    <table class="contenido">
+        <thead>
+            <tr>
+                <th>Cita ID</th>
+                <th>Paciente</th>
+                <th>DNI</th>
+                <th>Empleado</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Sede</th>
+                <th>Análisis</th>
+                <th>Precio</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Itera sobre el modelo para mostrar cada cita agendada *@
+            @foreach (var ca in Model)
+            {
+                <tr>
+                    @* Identificador único de la cita *@
+                    <td>@ca.CitaId</td>
+
+                    @* Nombre completo del paciente *@
+                    <td>@ca.Cita.Paciente.Nombre @ca.Cita.Paciente.Apellidos</td>
+
+                    @* DNI del paciente *@
+                    <td>@ca.Cita.Paciente.Dni</td>
+
+                    @* Nombre completo del empleado que atenderá la cita *@
+                    <td>@ca.Cita.Empleado.Nombre @ca.Cita.Empleado.Apellidos</td>
+
+                    @* Fecha en que se realizará la cita *@
+                    <td>@ca.Cita.Fecha.ToString("dd/MM/yyyy")</td>
+
+                    @* Hora programada de la cita *@
+                    <td>@ca.Cita.Hora</td>
+
+                    @* Sede del laboratorio donde se realizará la cita *@
+                    <td>@ca.Cita.Sede</td>
+
+                    @* Nombre del análisis solicitado *@
+                    <td>@ca.Analisis.Nombre</td>
+
+                    @* Precio del análisis solicitado, en formato monetario *@
+                    <td>@ca.Analisis.Precio.ToString("C")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

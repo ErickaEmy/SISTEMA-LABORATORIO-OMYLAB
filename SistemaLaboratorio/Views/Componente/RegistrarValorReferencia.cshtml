@@ -1,0 +1,62 @@
+﻿@model SistemaLaboratorio.Models.DescripcionComponente
+@{
+    ViewData["Title"] = "Valor de Referencia";
+}
+
+<h2>Registrar Valor de Referencia (@ViewBag.Restantes restantes)</h2>
+
+<form asp-action="RegistrarValorReferencia" method="post">
+    <input type="hidden" name="ComponenteId" value="@ViewBag.ComponenteId" />
+
+    <div class="form-group">
+        <label asp-for="Sexo" class="control-label"></label>
+        <select asp-for="Sexo" class="form-control">
+            <option value="Ambos">Ambos</option>
+            <option value="Masculino">Masculino</option>
+            <option value="Femenino">Femenino</option>
+        </select>
+        <span asp-validation-for="Sexo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EdadMinima" class="control-label"></label>
+        <input asp-for="EdadMinima" class="form-control" />
+        <span asp-validation-for="EdadMinima" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="EdadMaxima" class="control-label"></label>
+        <input asp-for="EdadMaxima" class="form-control" />
+        <span asp-validation-for="EdadMaxima" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Unidad" class="control-label"></label>
+        <input asp-for="Unidad" class="form-control" />
+        <span asp-validation-for="Unidad" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ValorMinimo" class="control-label"></label>
+        <input asp-for="ValorMinimo" class="form-control" />
+        <span asp-validation-for="ValorMinimo" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ValorMaximo" class="control-label"></label>
+        <input asp-for="ValorMaximo" class="form-control" />
+        <span asp-validation-for="ValorMaximo" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Registrar Valor</button>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
+@if (ViewBag.ComponenteId == null)
+{
+    <div class="alert alert-danger">Error: Componente no especificado.</div>
+}

@@ -1,0 +1,73 @@
+﻿@*/*
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-07 – Gestión de Análisis Paciente
+Propósito: Vista Razor para mostrar el detalle completo de un análisis específico asignado a un paciente.
+           Presenta información detallada incluyendo datos del paciente, análisis, estado y empleado responsable.
+
+Descripción general:
+Esta vista recibe como modelo un objeto AnalisisPaciente.  
+Utiliza datos auxiliares pasados por ViewBag para mostrar nombre y DNI del paciente y el nombre del análisis.
+El formato es limpio y claro, usando una tarjeta (card) de Bootstrap para presentar la información.
+Se incluye un botón para volver a la lista principal de análisis.
+-----------------------------------------------------------------------------------
+*/*@
+@model SistemaLaboratorio.Models.AnalisisPaciente
+
+@{
+    // Establece el título de la página para que se muestre en el encabezado y pueda usarse en la vista
+    ViewData["Title"] = "Detalle de Análisis del Paciente";
+}
+
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<!--
+    Contenedor principal tipo "card" con sombra para resaltar la sección
+    que muestra la información detallada del análisis asignado a un paciente.
+-->
+<div class="card shadow-sm">
+    <div class="card-body">
+        <!-- Título de la tarjeta indicando que se visualiza información detallada -->
+        <h5 class="card-title">Información del Análisis</h5>
+
+        <!--
+            Lista de definiciones (dl) que presenta en dos columnas etiquetas (dt) y sus datos (dd).
+            Se muestran los datos relevantes del análisis: paciente, DNI, análisis, fecha, estado y empleado.
+            La estructura usa clases Bootstrap para diseño responsive y ordenado.
+        -->
+        <dl class="row">
+            <dt class="col-sm-4">Paciente</dt>
+            <!-- Nombre completo del paciente pasado desde ViewBag en el controlador -->
+            <dd class="col-sm-8">@ViewBag.NombrePaciente</dd>
+
+            <dt class="col-sm-4">DNI del Paciente</dt>
+            <!-- DNI del paciente para identificación -->
+            <dd class="col-sm-8">@ViewBag.DniPaciente</dd>
+
+            <dt class="col-sm-4">Análisis</dt>
+            <!-- Nombre del análisis realizado -->
+            <dd class="col-sm-8">@ViewBag.NombreAnalisis</dd>
+
+            <dt class="col-sm-4">Fecha de Registro</dt>
+            <!-- Fecha y hora en formato dd/MM/yyyy HH:mm, tomada directamente del modelo -->
+            <dd class="col-sm-8">@Model.FechaHoraRegistro.ToString("dd/MM/yyyy HH:mm")</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <!-- Estado actual del análisis (pendiente, completado, cancelado, etc.) -->
+            <dd class="col-sm-8">@Model.Estado</dd>
+
+            <dt class="col-sm-4">Empleado Registrador</dt>
+            <!-- Nombre del empleado que registró el análisis; el uso de '?' previene errores si el empleado es null -->
+            <dd class="col-sm-8">@Model.Empleado?.Nombre</dd>
+        </dl>
+
+        <!--
+            Botón para regresar a la lista principal de análisis de pacientes.
+            Se ubica con espacio arriba y usa flexbox para distribuir elementos si hubiera más.
+        -->
+        <div class="mt-4 d-flex justify-content-between">
+            <a asp-action="Index" class="btn btn-secondary">Volver</a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,73 @@
+﻿@model SistemaLaboratorio.Models.Paciente
+
+@{
+    ViewData["Title"] = "Actualizar Paciente";
+}
+
+<h1 class="mb-4">Actualizar Paciente</h1>
+
+<form asp-action="Actualizar" method="post" class="needs-validation" novalidate>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="PacienteId" />
+
+
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="Nombre" class="form-label"></label>
+            <input asp-for="Nombre" class="form-control" readonly />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Apellidos" class="form-label"></label>
+            <input asp-for="Apellidos" class="form-control" readonly />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Dni" class="form-label"></label>
+            <input asp-for="Dni" class="form-control" readonly />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="FechaNacimiento" class="form-label"></label>
+            <input asp-for="FechaNacimiento" type="date" class="form-control" value="@ViewBag.FechaNacimiento" readonly />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Sexo" class="form-label"></label>
+            <input asp-for="Sexo" class="form-control" readonly />
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Celular" class="form-label"></label>
+            <input asp-for="Celular" class="form-control" />
+            <span asp-validation-for="Celular" class="text-danger"></span>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <label asp-for="Correo" class="form-label"></label>
+            <input asp-for="Correo" class="form-control" />
+            <span asp-validation-for="Correo" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Direccion" class="form-label"></label>
+            <input asp-for="Direccion" class="form-control" />
+            <span asp-validation-for="Direccion" class="text-danger"></span>
+        </div>
+        <div class="col-md-4">
+            <label asp-for="Estado" class="form-label"></label>
+            <select asp-for="Estado" class="form-select" asp-items="ViewBag.Estados"></select>
+            <span asp-validation-for="Estado" class="text-danger"></span>
+        </div>
+    </div>
+
+
+    <button type="submit" class="btn btn-success">Actualizar </button>
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,68 @@
+﻿@model SistemaLaboratorio.Models.Insumo
+
+@{
+    ViewData["Title"] = "Registrar Insumo";
+}
+
+<h1 class="mb-4">Registrar Insumo</h1>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <form asp-action="Registrar" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label"></label>
+                <input asp-for="Nombre" class="form-control" placeholder="Ingrese nombre del insumo" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Descripcion" class="form-label"></label>
+                <textarea asp-for="Descripcion" class="form-control" rows="3" placeholder="Descripción detallada"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="CantidadDisponible" class="form-label"></label>
+                <input asp-for="CantidadDisponible" class="form-control" placeholder="Cantidad disponible" />
+                <span asp-validation-for="CantidadDisponible" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="UnidadMedida" class="form-label"></label>
+                <input asp-for="UnidadMedida" class="form-control" placeholder="Ej: unidades, ml, g, etc." />
+                <span asp-validation-for="UnidadMedida" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="FechaVencimiento" class="form-label"></label>
+                <input asp-for="FechaVencimiento" type="date" class="form-control" />
+                <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Estado" class="form-label"></label>
+                <select asp-for="Estado" class="form-select">
+                    <option value="">-- Seleccione Estado --</option>
+                    <option value="Disponible">Disponible</option>
+                    <option value="Agotado">Agotado</option>
+                    <option value="Vencido">Vencido</option>
+                </select>
+                <span asp-validation-for="Estado" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+
+                <button type="submit" class="btn btn-primary">Registrar</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

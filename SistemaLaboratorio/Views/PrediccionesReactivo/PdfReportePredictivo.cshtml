@@ -1,0 +1,56 @@
+﻿@*  
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-11 – Generar Predicción por Machine Learning
+Propósito: Vista para la generación y visualización del reporte predictivo de consumo 
+           de reactivos, mostrando tendencias, máximos y mínimos consumos, junto 
+           con predicciones mensuales de consumo esperado. Esta vista se usa para exportar
+           o mostrar el reporte en formato PDF, por eso no utiliza layout ni elementos de interfaz.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo un objeto PrediccionesReactivoViewModel que contiene listas de resúmenes y predicciones detalladas por reactivo. 
+El reporte incluye encabezado institucional, título, fecha de generación y el contenido principal que se delega a una vista parcial para mantener código reutilizable y limpio.
+-----------------------------------------------------------------------------------
+*@
+@model SistemaLaboratorio.Controllers.PrediccionesReactivoViewModel
+@{
+    // RF-11: Desactivar layout para generar vista limpia sin elementos comunes de la aplicación web.
+    Layout = null;
+}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte Predictivo</title>
+    @* Se utiliza archivo CSS externo para estilos consistentes con otros reportes *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+    @* Encabezado institucional con logo y nombre del laboratorio estructurado en tabla para alineación correcta *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Logo institucional con atributo alt para accesibilidad *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+    @* Título principal del reporte para identificación clara *@
+    <h2>Reporte Predictivo</h2>
+        @* Fecha y hora actual para trazabilidad y control de versiones del reporte *@
+    <p>Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* 
+       Inclusión de la vista parcial que muestra los detalles de resúmenes y tablas 
+       de predicciones por reactivo. Así se evita duplicación del código.
+    *@
+    @await Html.PartialAsync("_PrediccionesReactivoDetalle", Model)
+
+</body>
+</html>

@@ -1,0 +1,174 @@
+﻿@*/*
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-07 – Gestión de Análisis Paciente
+Propósito: Vista Razor para la gestión y visualización del listado de análisis asignados a pacientes.
+           Permite mostrar la tabla con análisis registrados, filtrar por nombre de paciente,
+           registrar nuevos análisis, y cancelar aquellos pendientes mediante confirmación modal.
+
+Descripción general:
+Esta vista recibe como modelo una colección de objetos AnalisisPaciente.  
+Incluye búsqueda dinámica en la tabla usando JavaScript, presentación de datos relevantes como paciente,
+análisis, estado y fecha, así como botones para acciones específicas condicionadas al estado.
+Se utiliza token antifalsificación para proteger operaciones POST como la cancelación.
+La interfaz emplea Bootstrap para el diseño responsivo y componentes UI como modales.
+-----------------------------------------------------------------------------------
+*/*@
+
+@model IEnumerable<SistemaLaboratorio.Models.AnalisisPaciente>
+
+@{
+    // Define el título de la página que será mostrado en el encabezado
+    ViewData["Title"] = "Gestión de análisis del paciente";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<!-- Formulario oculto para generar token antifalsificación (CSRF) requerido para acciones POST -->
+<form id="antiForgeryForm">@Html.AntiForgeryToken()</form>
+
+<!-- Botón para navegar a la vista de registro de un nuevo análisis -->
+<div class="mb-3">
+    <a asp-action="Registrar" class="btn btn-primary">Registrar</a>
+</div>
+
+<!-- Campo de búsqueda para filtrar la tabla por nombre del paciente en tiempo real -->
+<div class="mb-3">
+    <input type="text" id="searchInput" class="form-control" placeholder="Buscar por nombre del paciente...">
+</div>
+
+<!-- Tabla que muestra la lista de análisis realizados a pacientes -->
+<table class="table table-bordered table-striped" id="analisisTable">
+    <thead class="table-dark">
+        <tr>
+            <th>Fecha de Registro</th>
+            <th>Paciente</th>
+            <th>Análisis</th>
+            <th>Estado</th>
+            <th>Cancelar</th>
+            <th>Ver Detalle</th>
+        </tr>
+    </thead>
+    <tbody>
+        @* Iteración para mostrar cada análisis paciente de la colección recibida en el modelo *@
+        @foreach (var item in Model)
+        {
+            <tr>
+                <!-- Fecha y hora del registro con formato estándar para orden y lectura -->
+                <td>@item.FechaHoraRegistro.ToString("yyyy-MM-dd HH:mm")</td>
+
+                <!-- Nombre completo del paciente; uso de null conditional para evitar errores si es null -->
+                <td>@item.Paciente?.Nombre @item.Paciente?.Apellidos </td>
+
+                <!-- Nombre del análisis asignado -->
+                <td>@item.Analisis?.Nombre</td>
+
+                <!-- Estado actual del análisis (pendiente, completado, cancelado, etc.) -->
+                <td>@item.Estado</td>
+
+                <!-- Botón para cancelar el análisis solo si está en estado 'Pendiente', de lo contrario deshabilitado -->
+                <td>
+                    @if (item.Estado == "Pendiente")
+                    {
+                        <button type="button" class="btn btn-sm btn-warning"
+                                onclick="mostrarModalCancelar(@item.AnalisisPacienteId)">
+                            Cancelar
+                        </button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-secondary" disabled>Cancelar</button>
+                    }
+                </td>
+
+                <!-- Enlace para ver el detalle del análisis, pasando el ID como parámetro -->
+                <td>
+                    <a asp-action="Detalle" asp-route-id="@item.AnalisisPacienteId" class="btn btn-sm btn-info">Ver detalle</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!--
+    Modal Bootstrap para confirmar la cancelación de un análisis paciente.
+    Se activa cuando el usuario desea cancelar y previene acciones accidentales.
+-->
+<div class="modal fade" id="confirmarCancelarModal" tabindex="-1" aria-labelledby="confirmarCancelarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmarCancelarLabel">Confirmar cancelación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro de que desea cancelar este análisis?
+            </div>
+            <div class="modal-footer">
+                <!-- Botón para cancelar la acción y cerrar el modal -->
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                <!-- Botón que confirma la cancelación y ejecuta la petición POST para cancelar -->
+                <button type="button" class="btn btn-danger" id="btnConfirmarCancelar">Sí, cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Evento que filtra la tabla en tiempo real según el texto ingresado en el campo de búsqueda
+        document.getElementById("searchInput").addEventListener("input", function () {
+            const filter = this.value.toLowerCase();
+            const rows = document.querySelectorAll("#analisisTable tbody tr");
+
+            rows.forEach(row => {
+                // Se obtiene el texto de la columna del paciente para comparación
+                const nombrePaciente = row.cells[1].textContent.toLowerCase();
+                // Muestra o esconde la fila según si el nombre contiene el texto buscado
+                row.style.display = nombrePaciente.includes(filter) ? "" : "none";
+            });
+        });
+
+        // Variable global local para almacenar el ID del análisis que se desea cancelar
+        let idAnalisisCancelar = 0;
+
+        // Función para mostrar el modal de confirmación y almacenar el ID seleccionado
+        function mostrarModalCancelar(id) {
+            idAnalisisCancelar = id;
+            var myModal = new bootstrap.Modal(document.getElementById('confirmarCancelarModal'));
+            myModal.show();
+        }
+
+        // Evento click del botón confirmar cancelación
+        document.getElementById('btnConfirmarCancelar').addEventListener('click', function () {
+            // Obtiene el token antifalsificación para proteger la solicitud POST
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            // Prepara los datos a enviar en el cuerpo del POST
+            const formData = new URLSearchParams();
+            formData.append('id', idAnalisisCancelar);
+
+            // Realiza la llamada fetch al método Cancelar del controlador AnalisisPaciente
+            fetch(`/AnalisisPaciente/Cancelar`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formData.toString()
+            })
+            .then(response => response.json()) // Convierte la respuesta a JSON
+            .then(data => {
+                if (data.success) {
+                    // Si fue exitoso, recarga la página para actualizar el listado
+                    location.reload();
+                } else {
+                    // Muestra alerta si ocurrió algún problema al cancelar
+                    alert("No se pudo cancelar el análisis.");
+                }
+            })
+            .catch(error => console.error('Error:', error)); // Maneja errores de red o inesperados
+        });
+    </script>
+}

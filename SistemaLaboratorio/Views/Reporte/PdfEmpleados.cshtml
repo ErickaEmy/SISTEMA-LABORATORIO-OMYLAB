@@ -1,0 +1,89 @@
+﻿@* 
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para la generación y visualización del reporte de "Empleados Registrados".
+           Presenta en formato tabular los datos de todos los empleados almacenados en el sistema,
+           incluyendo su identificación, datos personales, rol, contacto y estado actual.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo una lista de objetos Empleado y
+renderiza la información en un formato HTML limpio y listo para exportar o imprimir.
+Se eliminaron estilos internos en favor de un archivo CSS externo para mantener
+la separación entre presentación y lógica, facilitando el mantenimiento y
+mejorando la reutilización de estilos en otros reportes.
+
+-----------------------------------------------------------------------------------
+*@
+
+@model List<SistemaLaboratorio.Models.Empleado>
+
+@{
+    // RF-13: No se utiliza Layout para exportación independiente del reporte
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reporte de Empleados Registrados</title>
+    @* RF-13: Estilos centralizados en archivo CSS externo para mantener consistencia *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado institucional con logotipo y nombre del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Logo del laboratorio *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @* Título del reporte *@
+    <h2>Reporte de Empleados Registrados</h2>
+
+    @* Fecha y hora de generación del reporte *@
+    <p>Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Tabla con el listado de empleados *@
+    <table class="contenido">
+        <thead>
+            <tr>
+                <th>DNI</th>
+                <th>Nombre</th>
+                <th>Apellidos</th>
+                <th>Rol</th>
+                <th>Fecha de Nacimiento</th>
+                <th>Celular</th>
+                <th>Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Itera sobre cada empleado del modelo para mostrar sus datos *@
+            @foreach (var emp in Model)
+            {
+                <tr>
+                    <td>@emp.Dni</td>
+                    <td>@emp.Nombre</td>
+                    <td>@emp.Apellidos</td>
+                    <td>@emp.Rol</td>
+                    <td>@emp.FechaNacimiento.ToString("dd/MM/yyyy")</td>
+                    <td>@emp.Celular</td>
+                    <td>@emp.Estado</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

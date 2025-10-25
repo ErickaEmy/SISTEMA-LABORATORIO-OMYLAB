@@ -1,0 +1,86 @@
+﻿@model SistemaLaboratorio.Models.Cita
+
+@{
+    ViewData["Title"] = "Actualizar Cita";
+    var fechaMin = DateTime.Today.ToString("yyyy-MM-dd");
+    var horaInicio = new TimeSpan(7, 0, 0); // 07:00 AM
+    var horaFin = new TimeSpan(19, 0, 0);   // 07:00 PM
+    var intervalo = new TimeSpan(0, 10, 0); // 10 minutos
+}
+
+<h1 class="mb-4">Actualizar Cita</h1>
+
+<div class="card shadow rounded-3">
+    <div class="card-body">
+        <form asp-action="Actualizar" class="row g-3">
+            <input type="hidden" asp-for="CitaId" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="col-md-6">
+                <label for="PacienteId" class="form-label fw-semibold">Buscar Paciente (DNI o Nombre)</label>
+                <select id="PacienteId" name="PacienteId" class="form-control" disabled>
+                    <option value="@Model.PacienteId">@Model.PacienteId</option>
+                </select>
+                <input type="hidden" asp-for="PacienteId" />
+                <span asp-validation-for="PacienteId" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Fecha" class="form-label"></label>
+                <input asp-for="Fecha" class="form-control" type="date" min="@fechaMin" />
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Hora" class="form-label"></label>
+                <select asp-for="Hora" class="form-select">
+                    @for (var hora = horaInicio; hora <= horaFin; hora += intervalo)
+                    {
+                        var valor = hora.ToString(@"hh\:mm");
+                        <option value="@valor" selected="@(Model.Hora.ToString("HH:mm") == valor ? "selected" : null)">@valor</option>
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Estado" class="form-label"></label>
+                <select asp-for="Estado" class="form-select">
+                    @foreach (var estado in new[] { "Pendiente", "Completada", "Cancelada" })
+                    {
+                        <option value="@estado" selected="@(Model.Estado == estado ? "selected" : null)">@estado</option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label asp-for="Sede" class="form-label fw-semibold"></label>
+                <select asp-for="Sede" class="form-select">
+                    <option value="">Seleccione una sede</option>
+                    <option value="Blondel">Blondel</option>
+                    <option value="Solidaridad">Solidaridad</option>
+                    <option value="Centro">Centro</option>
+                </select>
+                <span asp-validation-for="Sede" class="text-danger"></span>
+            </div>
+
+            
+
+            <div class="col-md-6">
+                <label asp-for="Comentario" class="form-label fw-semibold"></label>
+                <textarea asp-for="Comentario" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Comentario" class="text-danger"></span>
+            </div>
+
+            <div class="col-12 d-flex justify-content-between align-items-center mt-3">
+                <a asp-action="Index" class="btn btn-secondary">Regresar a la Lista</a>
+                <button type="submit" class="btn btn-primary px-4">Actualizar</button>
+            </div>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

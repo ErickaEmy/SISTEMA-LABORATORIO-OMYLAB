@@ -1,0 +1,40 @@
+﻿@model SistemaLaboratorio.Models.Reactivo
+
+@{
+    ViewData["Title"] = "Detalle del Reactivo";
+}
+
+<h1 class="mb-4">Detalle del Reactivo</h1>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Nombre</dt>
+            <dd class="col-sm-9">@Model.Nombre</dd>
+
+            <dt class="col-sm-3">Cantidad</dt>
+            <dd class="col-sm-9">@Model.Cantidad</dd>
+
+            <dt class="col-sm-3">Capacidad</dt>
+            <dd class="col-sm-9">@Model.Capacidad</dd>
+
+            <dt class="col-sm-3">Fecha de Ingreso</dt>
+            <dd class="col-sm-9">@Model.FechaIngreso</dd>
+
+            <dt class="col-sm-3">Fecha de Vencimiento</dt>
+            <dd class="col-sm-9">@Model.FechaVencimiento</dd>
+
+            <dt class="col-sm-3">Proveedor</dt>
+            <dd class="col-sm-9">@Model.Proveedor</dd>
+
+            <dt class="col-sm-3">Presentación</dt>
+            <dd class="col-sm-9">@Model.Presentacion</dd>
+
+            <dt class="col-sm-3">Cantidad Total</dt>
+            <dd class="col-sm-9">@Model.CantidadTotal</dd>
+
+        </dl>
+
+        <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+    </div>
+</div>

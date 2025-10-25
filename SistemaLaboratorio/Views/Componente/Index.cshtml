@@ -1,0 +1,102 @@
+﻿@model IEnumerable<SistemaLaboratorio.Models.Componente>
+
+@{
+    ViewData["Title"] = "Lista de Componentes";
+}
+
+<h1 class="mb-4">Componentes</h1>
+
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <a class="btn btn-primary" asp-action="Registrar">Registrar</a>
+    <input type="text" id="buscarInput" class="form-control w-25" placeholder="Buscar componente...">
+</div>
+
+<table class="table table-bordered table-striped" id="componenteTabla">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.First().Nombre)</th>
+            <th>@Html.DisplayNameFor(model => model.First().Categoria)</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                <td>@Html.DisplayFor(modelItem => item.Categoria)</td>
+                <td>
+                    <a asp-action="Actualizar" asp-route-id="@item.ComponenteId" class="btn btn-sm btn-warning">Actualizar</a>
+                    <a asp-action="Detalle" asp-route-id="@item.ComponenteId" class="btn btn-sm btn-info">Detalle</a>
+                    <!-- Botón Eliminar con modal -->
+                    <button type="button" class="btn btn-sm btn-danger"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modalEliminar"
+                            data-id="@item.ComponenteId"
+                            data-nombre="@item.Nombre">
+                        Eliminar
+                    </button>
+
+                    <a asp-action="RegistrarReactivos" asp-route-id="@item.ComponenteId" class="btn btn-sm btn-success">Registrar Reactivo</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal de confirmación de eliminación para Componente -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea eliminar el componente <strong id="componenteNombre"></strong>?
+            </div>
+            <div class="modal-footer">
+                <form id="formEliminar" asp-action="Eliminar" method="post">
+                    <input type="hidden" name="id" id="componenteIdEliminar" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    <script>
+        document.getElementById('buscarInput').addEventListener('keyup', function () {
+            var valorBusqueda = this.value.toLowerCase();
+            var filas = document.querySelectorAll('#componenteTabla tbody tr');
+
+            filas.forEach(function (fila) {
+                var textoFila = fila.textContent.toLowerCase();
+                fila.style.display = textoFila.includes(valorBusqueda) ? '' : 'none';
+            });
+        });
+    </script>
+    <script>
+        // Filtro búsqueda igual que tienes ✔️
+
+        // Configura datos del modal
+        var modalEliminar = document.getElementById('modalEliminar');
+        modalEliminar.addEventListener('show.bs.modal', function (event) {
+            var boton = event.relatedTarget;
+            var componenteId = boton.getAttribute('data-id');
+            var componenteNombre = boton.getAttribute('data-nombre');
+
+            document.getElementById('componenteIdEliminar').value = componenteId;
+            document.getElementById('componenteNombre').textContent = componenteNombre;
+        });
+    </script>
+
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">@TempData["Mensaje"]</div>
+    }
+}

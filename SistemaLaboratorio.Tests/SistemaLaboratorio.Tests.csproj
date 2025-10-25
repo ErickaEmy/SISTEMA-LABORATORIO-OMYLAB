@@ -1,0 +1,27 @@
+﻿<Project Sdk="MSTest.Sdk/3.6.4">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+		<UseVSTest>true</UseVSTest>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="coverlet.collector" Version="6.0.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Core" Version="2.3.0" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="9.0.8" />
+		<PackageReference Include="MSTest.TestAdapter" Version="3.6.4" />
+		<PackageReference Include="MSTest.TestFramework" Version="3.6.4" />
+		<PackageReference Include="Selenium.Support" Version="4.37.0" />
+		<PackageReference Include="Selenium.WebDriver" Version="4.37.0" />
+		<PackageReference Include="Selenium.WebDriver.ChromeDriver" Version="141.0.7390.12200" />
+
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\SistemaLaboratorio\SistemaLaboratorio.csproj" />
+	</ItemGroup>
+
+</Project>

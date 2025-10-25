@@ -1,0 +1,72 @@
+﻿@model SistemaLaboratorio.Models.Componente
+
+@{
+    ViewData["Title"] = "Actualizar Componente";
+}
+
+<h1>Actualizar Componente</h1>
+<hr />
+
+<form asp-action="Actualizar" method="post">
+    <input type="hidden" asp-for="ComponenteId" />
+
+    <div class="form-group mb-3">
+        <label asp-for="Nombre" class="form-label"></label>
+        <input asp-for="Nombre" class="form-control" />
+        <span asp-validation-for="Nombre" class="text-danger"></span>
+    </div>
+
+    <div class="form-group mb-3">
+        <label asp-for="Categoria" class="form-label"></label>
+        <input asp-for="Categoria" class="form-control" />
+        <span asp-validation-for="Categoria" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Actualizar Componente</button>
+</form>
+
+<hr />
+<h4>Valores de Referencia</h4>
+
+<div class="mb-3">
+    <a asp-action="AgregarValorReferencia" asp-route-componenteId="@Model.ComponenteId" class="btn btn-success">
+        Agregar Valor de Referencia
+    </a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Sexo</th>
+            <th>Edad Min</th>
+            <th>Edad Max</th>
+            <th>Valor Min</th>
+            <th>Valor Max</th>
+            <th>Unidad</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var v in Model.DescripcionComponentes)
+        {
+                <tr>
+                    <td>@v.Sexo</td>
+                    <td>@v.EdadMinima</td>
+                    <td>@v.EdadMaxima</td>
+                    <td>@v.ValorMinimo</td>
+                    <td>@v.ValorMaximo</td>
+                    <td>@v.Unidad</td>
+                    <td>
+                        <form asp-action="EliminarValorReferencia" method="post">
+                            <input type="hidden" name="id" value="@v.DescripcionComponenteId" />
+                            <input type="hidden" name="componenteId" value="@Model.ComponenteId" />
+                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('¿Deseas eliminar este valor de referencia?')">
+                                Eliminar
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>
+<a asp-action="Index" class="btn btn-secondary">Regresar a la Lista</a>

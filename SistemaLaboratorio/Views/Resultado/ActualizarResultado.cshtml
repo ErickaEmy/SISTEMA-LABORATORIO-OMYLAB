@@ -1,0 +1,138 @@
+﻿@*/*
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-08 – Gestión de Resultados
+Caso de Uso: CU-08 – Gestionar Resultados
+Propósito: Vista Razor para la actualización y registro de resultados clínicos obtenidos
+           a partir de un análisis realizado a un paciente. 
+           Permite registrar los valores de cada componente, consultar valores de referencia,
+           validar datos ingresados, y finalmente guardar los resultados en el sistema.
+           Una vez registrados, los resultados no pueden ser editados para garantizar
+           la seguridad e integridad de la información clínica.
+
+Descripción general:
+Esta vista recibe como modelo un objeto `ActualizarResultadoViewModel`, que contiene la 
+información del paciente, análisis solicitado, componentes a evaluar, y sus respectivos valores 
+de referencia. 
+Incluye un formulario para ingresar los resultados numéricos de cada componente y validaciones 
+en tiempo real, además de una tabla complementaria que detalla los valores de referencia por 
+sexo, edad y rango válido. 
+Se utiliza validación del lado del cliente mediante scripts de ASP.NET Core.
+El diseño emplea Bootstrap para la presentación responsiva y estandarizada.
+-----------------------------------------------------------------------------------
+*/*@
+
+@model SistemaLaboratorio.ViewModel.ActualizarResultadoViewModel
+@{
+    // Define el título que será mostrado en la pestaña del navegador y encabezado de la página
+    ViewData["Title"] = "Actualizar Resultado";
+}
+<h2>Actualizar Resultado</h2>
+<!-- Tarjeta que agrupa la información del paciente y el formulario de resultados -->
+<div class="card">
+    <div class="card-body">
+        <!-- Encabezado con datos principales del paciente y análisis -->
+        <h5 class="card-title">Paciente: @Model.NombrePaciente</h5>
+        <h6 class="card-subtitle mb-2 text-muted">Análisis: @Model.NombreAnalisis</h6>
+
+        <!-- Formulario principal que envía los resultados para ser registrados -->
+        <form asp-action="GuardarResultados" method="post">
+            <!-- Campo oculto con el identificador del resultado -->
+            <input type="hidden" asp-for="ResultadoId" />
+
+            <!-- Tabla de ingreso de resultados para cada componente del análisis -->
+            <table class="table table-striped table-bordered mt-4">
+                <thead class="table-light">
+                    <tr>
+                        <th>Componente</th>
+                        <th>Valor Resultado</th>
+                        <th>Resultado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @* Iteración para recorrer todos los componentes asociados al análisis *@
+                    @for (int i = 0; i < Model.Componentes.Count; i++)
+                    {
+                        <tr>
+                            <!-- Nombre del componente clínico evaluado -->
+                            <td>@Model.Componentes[i].NombreComponente</td>
+
+                            <td>
+                                <!-- Campo oculto que guarda el identificador del componente asociado al análisis del paciente -->
+                                <input type="hidden" asp-for="@Model.Componentes[i].ComponenteAnalisisPacienteId" />
+
+                                <!-- Input numérico para el ingreso del valor del resultado -->
+                                <input asp-for="@Model.Componentes[i].ValorResultado"
+                                       class="form-control"
+                                       type="number" step="any"
+                                       min="0"
+                                       required />
+
+                                <!-- Mensaje de validación en caso de error en la entrada -->
+                                <span asp-validation-for="@Model.Componentes[i].ValorResultado" class="text-danger"></span>
+                            </td>
+
+                            <!-- Columna que muestra el resultado interpretado (ejemplo: normal, fuera de rango) -->
+                            <td>
+                                @Model.Componentes[i].Resultado
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <!-- Botones de acción para guardar los resultados o cancelar la operación -->
+            <button type="submit" class="btn btn-primary">Guardar Resultados</button>
+            <a asp-action="Index" class="btn btn-secondary ms-2">Cancelar</a>
+        </form>
+
+        <hr />
+
+        <!-- Sección que muestra los valores de referencia de cada componente -->
+        <h5>Valores de Referencia</h5>
+        <table class="table table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Componente</th>
+                    <th>Sexo</th>
+                    <th>Edad Mínima</th>
+                    <th>Edad Máxima</th>
+                    <th>Valor Mínimo</th>
+                    <th>Valor Máximo</th>
+                    <th>Unidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                @* Iteración para mostrar los valores de referencia, evitando duplicados por componente *@
+                @foreach (var refComp in Model.Referencias.DistinctBy(r => r.NombreComponente))
+                {
+                    <tr>
+                        <!-- Se detalla el nombre del componente clínico -->
+                        <td>@refComp.NombreComponente</td>
+                        <!-- Sexo asociado al valor de referencia -->
+                        <td>@refComp.Sexo</td>
+                        <!-- Rango etario mínimo (si no existe se muestra "N/A") -->
+                        <td>@(refComp.EdadMinima?.ToString() ?? "N/A")</td>
+                        <!-- Rango etario máximo (si no existe se muestra "N/A") -->
+                        <td>@(refComp.EdadMaxima?.ToString() ?? "N/A")</td>
+                        <!-- Valor mínimo permitido -->
+                        <td>@refComp.ValorMinimo</td>
+                        <!-- Valor máximo permitido -->
+                        <td>@refComp.ValorMaximo</td>
+                        <!-- Unidad de medida del componente -->
+                        <td>@refComp.Unidad</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        // Renderiza los scripts de validación necesarios para la validación de formularios en ASP.NET Core
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

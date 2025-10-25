@@ -1,0 +1,45 @@
+﻿@model SistemaLaboratorio.Models.Paciente
+
+@{
+    ViewData["Title"] = "Detalle del Paciente";
+}
+
+<h1 class="mb-4">Detalle del Paciente</h1>
+
+<div class="card">
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-4">Nombre</dt>
+            <dd class="col-sm-8">@Model.Nombre</dd>
+
+            <dt class="col-sm-4">Apellidos</dt>
+            <dd class="col-sm-8">@Model.Apellidos</dd>
+
+            <dt class="col-sm-4">DNI</dt>
+            <dd class="col-sm-8">@Model.Dni</dd>
+
+            <dt class="col-sm-4">Fecha de Nacimiento</dt>
+            <dd class="col-sm-8">@Model.FechaNacimiento.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-4">Sexo</dt>
+            <dd class="col-sm-8">@Model.Sexo</dd>
+
+            <dt class="col-sm-4">Celular</dt>
+            <dd class="col-sm-8">@Model.Celular</dd>
+
+            <dt class="col-sm-4">Correo</dt>
+            <dd class="col-sm-8">@Model.Correo</dd>
+
+            <dt class="col-sm-4">Dirección</dt>
+            <dd class="col-sm-8">@Model.Direccion</dd>
+
+            <dt class="col-sm-4">Estado</dt>
+            <dd class="col-sm-8">@Model.Estado</dd>
+        </dl>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a asp-action="Index" class="btn btn-secondary">Regresar a la Lista</a>
+
+</div>

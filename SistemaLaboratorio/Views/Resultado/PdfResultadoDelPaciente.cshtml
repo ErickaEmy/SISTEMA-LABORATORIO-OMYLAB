@@ -1,0 +1,202 @@
+﻿@*/*
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-08 – Gestión de Resultados
+Caso de Uso: CU-08 – Gestionar Resultados
+Propósito:
+    Vista Razor para mostrar el detalle completo de los resultados de un análisis clínico realizado a un paciente. 
+    Permite visualizar información del análisis, datos del paciente, valores de referencia y resultados obtenidos.
+    La interfaz está diseñada para ser exportada/descargada en PDF, asegurando que una vez guardados los resultados 
+    no puedan ser modificados, garantizando la seguridad e integridad clínica de la información.
+Descripción general:
+    - Se emplea Bootstrap para el diseño responsivo y estilos visuales modernos.
+    - Incluye encabezado con datos institucionales, logo y lema corporativo.
+    - Presenta secciones claras: datos del análisis, datos del paciente y detalle de componentes.
+    - Los valores de referencia se listan en tabla comparativa con valores mínimo/máximo, unidad, sexo y rango de edad.
+    - Se utiliza un modelo dinámico que contiene los objetos necesarios: Paciente, Análisis, Resultado y Componentes.
+-----------------------------------------------------------------------------------
+*/*@
+
+@model dynamic
+@{
+    // Layout se establece en null porque este documento se genera independiente,
+    // pensado para exportarse o descargarse en PDF
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Resultado del Paciente</title>
+
+    <!-- Bootstrap CDN para estilos y diseño responsivo -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        /* Estilos generales del cuerpo */
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 16px; /* Tamaño de fuente legible */
+            color: #000;
+            line-height: 1.6;
+        }
+
+        /* Encabezado con borde inferior destacado */
+        .header-table {
+            width: 100%;
+            border-bottom: 3px solid #8B0000;
+            margin-bottom: 30px;
+        }
+
+            .header-table td {
+                vertical-align: middle;
+            }
+
+        /* Logo del laboratorio */
+        .logo {
+            max-width: 150px;
+        }
+
+        /* Nombre del laboratorio destacado */
+        .lab-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8B0000;
+        }
+
+        /* Título principal de sección */
+        h2 {
+            color: #8B0000;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 30px;
+            font-size: 26px;
+        }
+
+        /* Subtítulos de secciones */
+        .section-title {
+            font-weight: bold;
+            color: #8B0000;
+            margin-top: 30px;
+            margin-bottom: 10px;
+            font-size: 20px;
+        }
+
+        /* Lista de información básica sin viñetas */
+        .info-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+            .info-list li {
+                margin-bottom: 6px;
+            }
+
+        /* Tablas de resultados */
+        table.table {
+            font-size: 14px;
+        }
+
+        thead {
+            background-color: #8B0000;
+            color: #fff;
+        }
+
+        /* Filas pares con color diferenciado */
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Pie de página */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <!-- Encabezado institucional con logo y nombre del laboratorio -->
+    <table class="header-table">
+        <tr>
+            <td style="width: 180px;">
+                <!-- Logo del laboratorio -->
+                <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" class="logo" />
+            </td>
+            <td>
+                <div class="lab-name">Laboratorio Clínico OMYLAB</div>
+                <div style="color: #333; font-size: 16px;">Confianza y precisión en cada resultado</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- Título principal que identifica el análisis -->
+    <h1>Resultado de @Model.Analisis.Nombre</h1>
+
+    <!-- Sección: Datos del análisis clínico -->
+    <div class="section-title">Datos del Análisis</div>
+    <ul class="info-list">
+        <li><strong>Tipo de Muestra:</strong> @Model.Analisis.TipoMuestra</li>
+        <li><strong>Fecha y Hora de Registro:</strong> @Model.AnalisisPaciente.FechaHoraRegistro</li>
+        <li><strong>Fecha de Registro del Resultado:</strong> @Model.Resultado.FechaRegistro</li>
+    </ul>
+
+    <!-- Sección: Datos personales del paciente -->
+    <div class="section-title">Datos del Paciente</div>
+    <ul class="info-list">
+        <li><strong>DNI:</strong> @Model.Paciente.Dni</li>
+        <li><strong>Nombre:</strong> @Model.Paciente.Nombre @Model.Paciente.Apellidos</li>
+        <li><strong>Sexo:</strong> @Model.Paciente.Sexo</li>
+        <li><strong>Edad:</strong> @Model.Paciente.Edad años</li>
+    </ul>
+
+    <!-- Sección: Detalle de los componentes analizados -->
+    <div class="section-title">Detalle de Componentes</div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Componente</th>
+                <th>Valor Resultado</th>
+                <th>Resultado</th>
+                <th>Valor Mínimo</th>
+                <th>Valor Máximo</th>
+                <th>Unidad</th>
+                <th>Sexo</th>
+                <th>Edad Mínima</th>
+                <th>Edad Máxima</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* 
+               Iteración sobre cada componente del análisis.
+               Cada componente puede tener varios valores de referencia asociados.
+            *@
+            @foreach (var comp in Model.Componentes)
+            {
+                foreach (var refVal in comp.Referencias)
+                {
+                    <tr>
+                        <td>@comp.NombreComponente</td>
+                        <td>@comp.ValorResultado</td>
+                        <td>@comp.Resultado</td>
+                        <td>@refVal.ValorMinimo</td>
+                        <td>@refVal.ValorMaximo</td>
+                        <td>@refVal.Unidad</td>
+                        <td>@refVal.Sexo</td>
+                        <td>@(refVal.EdadMinima?.ToString() ?? "N/A")</td>
+                        <td>@(refVal.EdadMaxima?.ToString() ?? "N/A")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <!-- Pie de página con derechos reservados -->
+    <div class="footer">
+        Laboratorio Clínico OMYLAB - Todos los derechos reservados
+    </div>
+</body>
+</html>

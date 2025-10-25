@@ -1,0 +1,105 @@
+﻿@* 
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para la generación y visualización del reporte de "Análisis Emitidos".
+           Presenta los resultados consultados desde la base de datos, formateados en
+           una tabla, incluyendo información de paciente, análisis realizado, fecha 
+           y empleado responsable.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo una lista de objetos 
+AnalisisEmitidoDto y muestra los datos filtrados según los parámetros 
+proporcionados (rango de fechas y empleado). El contenido se presenta en 
+formato HTML con estilos externos y cabecera personalizada.
+
+-----------------------------------------------------------------------------------
+*@
+
+@model List<SistemaLaboratorio.Models.AnalisisEmitidoDto>
+
+@{
+    // RF-13: No se utiliza Layout para permitir exportar/mostrar este reporte de forma independiente.
+    Layout = null;
+
+    // Variables locales que almacenan los filtros recibidos desde el controlador vía ViewData.
+    var rango = ViewData["Rango"] as string;       // Rango de fechas del reporte
+    var empleado = ViewData["Empleado"] as string; // Nombre del empleado filtrado
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Análisis Emitidos</title>
+    @* RF-13: Se usa archivo CSS externo (reportes.css) para mantener separación de estilos y lógica *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado con logotipo y título del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Imagen institucional del laboratorio *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <h2>Análisis Emitidos</h2>
+
+    @* RF-13: Muestra el rango de fechas filtrado, solo si fue proporcionado *@
+    @if (!string.IsNullOrEmpty(rango))
+    {
+        <p>Rango de fechas: @rango</p>
+    }
+
+    @* RF-13: Muestra el empleado filtrado, solo si fue proporcionado *@
+    @if (!string.IsNullOrEmpty(empleado))
+    {
+        <p>Empleado: @empleado</p>
+    }
+
+    @* Fecha y hora en que se genera el reporte *@
+    <p>Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Tabla de resultados: Lista cada análisis emitido con datos de paciente, análisis, fecha y empleado *@
+    <table class="contenido">
+        <thead>
+            <tr>
+                <th>Paciente</th>
+                <th>Análisis</th>
+                <th>Fecha de Registro</th>
+                <th>Empleado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* RF-13: Itera sobre la colección recibida en el modelo para mostrar cada registro *@
+            @foreach (var item in Model)
+            {
+                <tr>
+                    @* Paciente: DNI seguido de nombre completo *@
+                    <td>@item.PacienteDni: @item.PacienteNombreCompleto</td>
+
+                    @* Nombre del análisis emitido *@
+                    <td>@item.NombreAnalisis</td>
+
+                    @* Fecha y hora en que se registró el análisis *@
+                    <td>@item.FechaHoraRegistro.ToString("dd/MM/yyyy HH:mm")</td>
+
+                    @* Nombre completo del empleado que emitió el análisis *@
+                    <td>@item.EmpleadoNombreCompleto</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

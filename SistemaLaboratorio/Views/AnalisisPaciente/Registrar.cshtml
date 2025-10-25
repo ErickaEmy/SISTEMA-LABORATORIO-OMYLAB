@@ -1,0 +1,86 @@
+﻿@*/*
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-07 – Gestión de Análisis Paciente
+Propósito: Vista Razor para registrar un nuevo análisis asociado a un paciente.
+           Permite seleccionar un paciente mediante autocompletado por nombre o DNI,
+           seleccionar un análisis activo de la lista desplegable, y enviar el formulario
+           para crear el registro en la base de datos.
+
+Descripción general:
+La vista utiliza un modelo AnalisisPaciente para enlazar datos básicos.
+Emplea jQuery UI Autocomplete para facilitar la búsqueda dinámica y selección del paciente.
+Los campos obligatorios incluyen paciente y análisis.
+Incluye validación de campos y utiliza los helpers de ASP.NET Core para mostrar mensajes de error.
+Botones para enviar formulario o cancelar y volver a la lista principal.
+-----------------------------------------------------------------------------------
+*/*@
+@model SistemaLaboratorio.Models.AnalisisPaciente
+
+@{
+    // Título que se mostrará en el navegador y en la página
+    ViewData["Title"] = "Registrar Análisis de Paciente";
+}
+
+<h2>Registrar Análisis de Paciente</h2>
+
+<!-- Formulario para registrar un nuevo análisis, método POST a la acción Registrar -->
+<form asp-action="Registrar" method="post">
+    <div class="form-group">
+        <!-- Etiqueta para el campo de búsqueda de paciente -->
+        <label for="pacienteNombre">Buscar Paciente</label>
+
+        <!-- Campo de texto para autocompletar el paciente por nombre o DNI -->
+        <input id="pacienteNombre" type="text" class="form-control" placeholder="Empiece a escribir el nombre o DNI">
+
+        <!-- Campo oculto para almacenar el ID del paciente seleccionado -->
+        <input type="hidden" id="pacienteId" name="pacienteId" />
+
+        <!-- Mensaje de error para la validación del campo PacienteId -->
+        <span asp-validation-for="PacienteId" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <!-- Etiqueta para la selección de análisis -->
+        <label for="analisisId">Análisis</label>
+
+        <!-- Lista desplegable para seleccionar el análisis, llena desde ViewData por el controlador -->
+        <select id="analisisId" name="analisisId" class="form-control" asp-items="@(ViewData["AnalisisId"] as SelectList)" required>
+            <option value="">-- Seleccione un análisis --</option>
+        </select>
+
+        <!-- Mensaje de error para la validación del campo AnalisisId -->
+        <span asp-validation-for="AnalisisId" class="text-danger"></span>
+    </div>
+    <br />
+
+    <!-- Botón para enviar el formulario -->
+    <button type="submit" class="btn btn-primary">Registrar</button>
+
+    <!-- Botón para cancelar y regresar a la lista principal -->
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+</form>
+
+@section Scripts {
+    <!-- Importación de librerías jQuery UI para autocompletado -->
+    <script src="https://code.jquery.com/ui/1.13.2/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.2/themes/base/jquery-ui.css" />
+
+    <script>
+        // Inicialización de autocompletado para el campo pacienteNombre
+        $(function () {
+            $("#pacienteNombre").autocomplete({
+                // Fuente de datos para autocompletado obtenida de la acción BuscarPorNombre en el controlador AnalisisPaciente
+                source: '@Url.Action("BuscarPorNombre", "AnalisisPaciente")',
+                // Mínimo número de caracteres para iniciar búsqueda
+                minLength: 2,
+                // Evento que se dispara al seleccionar un paciente del listado
+                select: function (event, ui) {
+                    // Se almacena el valor (ID del paciente) en el campo oculto pacienteId para enviar en el formulario
+                    $("#pacienteId").val(ui.item.value);
+                }
+            });
+        });
+    </script>
+}

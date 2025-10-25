@@ -1,0 +1,84 @@
+﻿@* 
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista Razor para la generación y visualización del reporte "Análisis Más Solicitados".
+           Permite mostrar en formato PDF la lista de análisis clínicos con mayor demanda,
+           filtrados por un rango de fechas determinado.
+
+Descripción general:
+Este archivo recibe como modelo una lista de objetos AnalisisSolicitadoDto,
+y utiliza datos enviados desde el controlador a través de ViewData para mostrar
+el rango de fechas aplicado. El contenido se presenta en formato HTML con una
+estructura tabular y estilos definidos en un archivo CSS externo para facilitar
+su mantenimiento y reutilización.
+
+-----------------------------------------------------------------------------------
+*@
+
+@model List<SistemaLaboratorio.Models.AnalisisSolicitadoDto>
+
+@{
+    // RF-13: Se desactiva Layout para permitir la exportación independiente del reporte
+    Layout = null;
+
+    // Almacena el rango de fechas filtrado o "Todos" si no se especificó
+    string rango = ViewData["Rango"] as string ?? "Todos";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Análisis Más Solicitados</title>
+
+    @* RF-13: Uso de archivo CSS externo para mantener separación entre estilos y lógica,
+       facilitando consistencia y mantenimiento *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado institucional con logo y nombre del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @* Título principal del reporte *@
+    <h2>Análisis Más Solicitados</h2>
+
+    @* Muestra el rango de fechas filtrado y la fecha/hora de generación del reporte *@
+    <p>Rango: @rango</p>
+    <p>Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Tabla que presenta los análisis solicitados y sus cantidades *@
+    <table class="contenido">
+        <thead>
+            <tr>
+                <th>Análisis</th>
+                <th>Cantidad</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* RF-13: Itera sobre la lista de análisis solicitados recibida como modelo para mostrar datos *@
+            @foreach (var a in Model)
+            {
+                <tr>
+                    <td>@a.NombreAnalisis</td>
+                    <td>@a.Cantidad</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

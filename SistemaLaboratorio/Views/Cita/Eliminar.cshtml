@@ -1,0 +1,46 @@
+﻿@model SistemaLaboratorio.Models.Cita
+
+@{
+    ViewData["Title"] = "Eliminar Cita";
+}
+
+<div class="container mt-5">
+    <div class="card shadow-lg">
+        <div class="card-header bg-danger text-white">
+            <h4 class="mb-0">¿Estás seguro que deseas eliminar esta cita?</h4>
+        </div>
+        <div class="card-body">
+            <h5 class="card-title text-muted">Detalles de la cita</h5>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-3">Fecha</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Fecha)</dd>
+
+                <dt class="col-sm-3">Hora</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Hora)</dd>
+
+                <dt class="col-sm-3">Estado</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Estado)</dd>
+
+                <dt class="col-sm-3">Sede</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Sede)</dd>
+
+                <dt class="col-sm-3">Comentario</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Comentario)</dd>
+
+                <dt class="col-sm-3">Empleado</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Empleado.Apellidos)</dd>
+
+                <dt class="col-sm-3">Paciente</dt>
+                <dd class="col-sm-9">@Html.DisplayFor(model => model.Paciente.Apellidos)</dd>
+            </dl>
+        </div>
+        <div class="card-footer d-flex justify-content-between align-items-center">
+            <form asp-action="Eliminar" class="mb-0">
+                <input type="hidden" asp-for="CitaId" />
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+                <a asp-action="Index" class="btn btn-secondary">Regresar a la lista</a>
+            </form>
+        </div>
+    </div>
+</div>

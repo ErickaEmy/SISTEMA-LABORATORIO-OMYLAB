@@ -1,0 +1,67 @@
+﻿@model SistemaLaboratorio.Models.Analisis
+
+@{
+    ViewData["Title"] = "Actualizar Análisis";
+}
+<h1 class="mb-0">Actualizar Análisis</h1>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        
+        <div class="card-body">
+            <form asp-action="Actualizar">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="AnalisisId" />
+
+                <div class="mb-3">
+                    <label asp-for="Nombre" class="form-label"></label>
+                    <input asp-for="Nombre" class="form-control" readonly />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <select asp-for="TipoMuestra" class="form-select" disabled>
+                    <option value="">Seleccione una opción</option>
+                    <option value="Sangre">Sangre</option>
+                    <option value="Orina">Orina</option>
+                    <option value="Heces">Heces</option>
+                </select>
+                <input type="hidden" asp-for="TipoMuestra" />
+
+                <div class="mb-3">
+                    <label asp-for="Condicion" class="form-label"></label>
+                    <input asp-for="Condicion" class="form-control" />
+                    <span asp-validation-for="Condicion" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Comentario" class="form-label"></label>
+                    <textarea asp-for="Comentario" class="form-control" rows="3"></textarea>
+                    <span asp-validation-for="Comentario" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Precio" class="form-label"></label>
+                    <input asp-for="Precio" class="form-control" type="number" step="0.01" />
+                    <span asp-validation-for="Precio" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-3">
+                    <input class="form-check-input" asp-for="Estado" />
+                    <label class="form-check-label" asp-for="Estado">
+                        @Html.DisplayNameFor(model => model.Estado)
+                    </label>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">Regresar a la Lista</a>
+                    <button type="submit" class="btn btn-success">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

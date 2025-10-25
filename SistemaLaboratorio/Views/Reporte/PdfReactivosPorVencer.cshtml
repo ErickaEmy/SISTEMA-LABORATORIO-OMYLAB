@@ -1,0 +1,113 @@
+﻿@*  
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-13 – Generar Reportes
+Propósito: Vista para la generación y visualización del reporte de "Reactivos por Vencer".
+           Presenta un listado de insumos químicos del laboratorio próximos a caducar,
+           indicando nombre, fecha de vencimiento, presentación, proveedor y días restantes.
+
+Descripción general:
+Este archivo Razor (CSHTML) recibe como modelo una lista de objetos ReactivoPorVencerDto 
+proporcionados por la capa de negocio. El reporte muestra, de forma tabular, la información
+relevante de cada reactivo y calcula dinámicamente la condición de vencimiento 
+("Vencido hace X días", "Vence hoy" o "X días restantes"). 
+
+Se añadieron comentarios para indicar la desactivación del layout para exportación, el uso 
+de estilos externos para mantener uniformidad, y la lógica para mostrar el estado de vencimiento, 
+con el objetivo de mejorar la claridad y facilitar el mantenimiento conforme al RF-13.
+
+-----------------------------------------------------------------------------------
+*@
+
+@model List<SistemaLaboratorio.Models.ReactivoPorVencerDto>
+
+@{
+    // RF-13: No se utiliza Layout para permitir la exportación directa de este reporte en PDF.
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Reactivos por Vencer</title>
+
+    @* RF-13: Uso de hoja de estilos externa para uniformidad visual y mantenimiento *@
+    <link rel="stylesheet" href="~/css/reportes.css" />
+</head>
+<body>
+
+    @* Encabezado institucional con logotipo y nombre del laboratorio *@
+    <div class="encabezado">
+        <table>
+            <tr>
+                <td>
+                    @* Logo del laboratorio *@
+                    <img src="~/imagenes/logo.jpg" alt="Logo del Laboratorio" />
+                </td>
+                <td class="titulo">
+                    Laboratorio Clínico OMYLAB
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    @* Título principal del reporte *@
+    <h2 class="titulo-reporte">Reactivos por Vencer</h2>
+
+    @* Fecha y hora exacta en que se genera el reporte *@
+    <p class="filtro-derecha">Fecha de generación: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")</p>
+
+    @* Tabla con datos de cada reactivo próximo a vencer *@
+    <table class="contenido">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Fecha de Vencimiento</th>
+                <th>Presentación</th>
+                <th>Proveedor</th>
+                <th>Por Vencer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* RF-13: Itera sobre el modelo recibido y muestra información de cada reactivo *@
+            @foreach (var reactivo in Model)
+            {
+                <tr>
+                    @* Nombre del reactivo *@
+                    <td>@reactivo.Nombre</td>
+
+                    @* Fecha exacta de vencimiento *@
+                    <td>@reactivo.FechaVencimiento.ToString("dd/MM/yyyy")</td>
+
+                    @* Presentación del producto (ej. caja, frasco, ampolla) *@
+                    <td>@reactivo.Presentacion</td>
+
+                    @* Proveedor que suministró el reactivo *@
+                    <td>@reactivo.Proveedor</td>
+
+                    @* Cálculo de días restantes o vencidos según fecha actual *@
+                    <td>
+                        @{
+                            if (reactivo.DiasPorVencer < 0)
+                            {
+                                <text>Vencido hace @Math.Abs(reactivo.DiasPorVencer) días</text>
+                            }
+                            else if (reactivo.DiasPorVencer == 0)
+                            {
+                                <text>Vence hoy</text>
+                            }
+                            else
+                            {
+                                <text>@reactivo.DiasPorVencer días</text>
+                            }
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</body>
+</html>

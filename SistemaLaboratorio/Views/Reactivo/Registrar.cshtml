@@ -1,0 +1,63 @@
+﻿@model SistemaLaboratorio.Models.Reactivo
+
+@{
+    ViewData["Title"] = "Registrar Reactivo";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Registrar Nuevo Reactivo</h2>
+
+    <!-- Formulario de registro con Bootstrap -->
+    <form asp-action="Registrar" method="post">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label asp-for="Nombre" class="form-label">Nombre</label>
+                <input asp-for="Nombre" class="form-control" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Cantidad" class="form-label">Cantidad</label>
+                <input asp-for="Cantidad" class="form-control" type="number" min="0" />
+                <span asp-validation-for="Cantidad" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-3">
+                <label asp-for="Capacidad" class="form-label">Capacidad</label>
+                <input asp-for="Capacidad" class="form-control" type="number" min="0" step="any" />
+                <span asp-validation-for="Capacidad" class="text-danger"></span>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-4">
+                <label asp-for="FechaVencimiento" class="form-label">Fecha de Vencimiento</label>
+                <input asp-for="FechaVencimiento" class="form-control" type="date" />
+                <span asp-validation-for="FechaVencimiento" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Proveedor" class="form-label">Proveedor</label>
+                <input asp-for="Proveedor" class="form-control" />
+                <span asp-validation-for="Proveedor" class="text-danger"></span>
+            </div>
+
+            <div class="col-md-4">
+                <label asp-for="Presentacion" class="form-label">Presentación</label>
+                <input asp-for="Presentacion" class="form-control" />
+                <span asp-validation-for="Presentacion" class="text-danger"></span>
+            </div>
+        </div>
+
+        <!-- Botones de acción -->
+        <div class="mt-4">
+            <button type="submit" class="btn btn-primary">Registrar</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <!-- Habilitar validación de formularios -->
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,109 @@
+﻿@model IEnumerable<SistemaLaboratorio.Models.Paciente>
+
+@{
+    ViewData["Title"] = "Lista de Pacientes";
+}
+
+<h1 class="mb-4">Pacientes</h1>
+
+<!-- Mensaje de sistema -->
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Mensaje"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+    </div>
+}
+
+<!-- Botón Registrar y campo de búsqueda -->
+<div class="mb-3 d-flex justify-content-between align-items-center">
+    <a class="btn btn-primary" asp-action="Registrar">Registrar</a>
+    <input type="text" id="buscarInput" class="form-control w-25" placeholder="Buscar paciente...">
+</div>
+
+<!-- Tabla de pacientes -->
+<table class="table table-bordered table-hover" id="pacienteTabla">
+    <thead class="table-dark">
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Nombre)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Apellidos)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Dni)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().FechaNacimiento)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().Celular)</th>
+            <th class="text-center">Acciones</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Nombre</td>
+                <td>@item.Apellidos</td>
+                <td>@item.Dni</td>
+                <td>@item.FechaNacimiento.ToShortDateString()</td>
+                <td>@item.Celular</td>
+                <td class="text-center">
+                    <a asp-action="Actualizar" asp-route-id="@item.PacienteId" class="btn btn-sm btn-warning me-1">Actualizar</a>
+                    <a asp-action="Detalle" asp-route-id="@item.PacienteId" class="btn btn-sm btn-info me-1">Detalle</a>
+
+                    <a asp-action="HistorialDelPaciente" asp-route-pacienteId="@item.PacienteId" class="btn btn-sm btn-outline-dark me-1">Descargar Historial</a>
+
+
+                    <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#modalEliminar"
+                            data-id="@item.PacienteId" data-nombre="@($"{item.Nombre} {item.Apellidos}")">
+                        Eliminar
+                    </button>
+
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Modal de confirmación de eliminación -->
+<div class="modal fade" id="modalEliminar" tabindex="-1" aria-labelledby="modalEliminarLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="modalEliminarLabel">Confirmar eliminación</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea eliminar el paciente <strong id="pacienteNombre"></strong>?
+            </div>
+            <div class="modal-footer">
+                <form id="formEliminar" asp-action="Eliminar" method="post">
+                    <input type="hidden" name="id" id="pacienteIdEliminar" />
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Filtro en tiempo real
+        document.getElementById('buscarInput').addEventListener('keyup', function () {
+            var valorBusqueda = this.value.toLowerCase();
+            var filas = document.querySelectorAll('#pacienteTabla tbody tr');
+
+            filas.forEach(function (fila) {
+                var textoFila = fila.textContent.toLowerCase();
+                fila.style.display = textoFila.includes(valorBusqueda) ? '' : 'none';
+            });
+        });
+
+        // Configurar modal al abrirse
+        var modalEliminar = document.getElementById('modalEliminar');
+        modalEliminar.addEventListener('show.bs.modal', function (event) {
+            var boton = event.relatedTarget;
+            var pacienteId = boton.getAttribute('data-id');
+            var pacienteNombre = boton.getAttribute('data-nombre');
+
+            document.getElementById('pacienteIdEliminar').value = pacienteId;
+            document.getElementById('pacienteNombre').textContent = pacienteNombre;
+        });
+    </script>
+}

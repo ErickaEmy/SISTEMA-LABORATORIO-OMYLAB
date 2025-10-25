@@ -1,0 +1,121 @@
+﻿@*/*
+-----------------------------------------------------------------------------------
+Autor: Ericka Esther Martinez Yufra
+Fecha: 09/08/2025
+Requerimiento: RF-08 – Gestión de Resultados
+Caso de Uso: CU-08 – Gestionar Resultados
+Propósito: Vista Razor para la visualización en detalle de los resultados de un análisis clínico
+           realizado a un paciente. Permite consultar los datos del paciente, información del análisis,
+           detalles del registro del resultado y la tabla de componentes con sus valores obtenidos 
+           frente a los valores de referencia. 
+
+Descripción general:
+Esta vista recibe como modelo un objeto que contiene la información completa del resultado 
+registrado en el sistema. Se muestran de forma estructurada:
+- Datos del paciente (identificación, edad, sexo).
+- Datos del análisis clínico (nombre, tipo de muestra, precio).
+- Datos del análisis realizado al paciente (fecha de registro, estado).
+- Datos del resultado (fecha de registro).
+- Tabla detallada de componentes con el valor obtenido, resultado interpretado,
+  y los valores de referencia según sexo y edad.
+
+El propósito principal de esta vista es la consulta y validación visual de los resultados.
+Siguiendo el requerimiento, una vez guardados los resultados no pueden ser editados,
+asegurando así la integridad y trazabilidad clínica de la información.
+
+Se emplea Bootstrap para la presentación responsiva y estilización de tablas y tarjetas.
+-----------------------------------------------------------------------------------
+*/*@
+
+@{
+    // Define el título mostrado en la vista y en el encabezado principal
+    ViewData["Title"] = "Detalle del Resultado";
+}
+
+<!-- Encabezado principal de la página -->
+<h1 class="mb-4">@ViewData["Title"]</h1>
+
+<!-- Contenedor principal que agrupa toda la información en formato de tarjeta -->
+<div class="card shadow-sm p-4">
+
+    <!-- Sección con la información del paciente asociado al resultado -->
+    <h4>Datos del Paciente</h4>
+    <ul>
+        <li>DNI: @Model.Paciente.Dni</li>
+        <li>Nombre: @Model.Paciente.Nombre @Model.Paciente.Apellidos</li>
+        <li>Sexo: @Model.Paciente.Sexo</li>
+        <li>Edad: @Model.Paciente.Edad años</li>
+    </ul>
+
+    <!-- Sección con información general del análisis clínico solicitado -->
+    <h4>Datos del Análisis</h4>
+    <ul>
+        <li>Nombre: @Model.Analisis.Nombre</li>
+        <li>Tipo de Muestra: @Model.Analisis.TipoMuestra</li>
+        <li>Precio: S/ @Model.Analisis.Precio</li>
+    </ul>
+
+    <!-- Sección con los datos específicos del análisis realizado al paciente -->
+    <h4>Datos del Análisis del Paciente</h4>
+    <ul>
+        <li>Fecha y Hora de Registro: @Model.AnalisisPaciente.FechaHoraRegistro</li>
+        <li>Estado: @Model.AnalisisPaciente.Estado</li>
+    </ul>
+
+    <!-- Sección que muestra la fecha en que se registró el resultado final -->
+    <h4>Datos del Resultado</h4>
+    <ul>
+        <li>Fecha de Registro: @Model.Resultado.FechaRegistro</li>
+    </ul>
+
+    <!-- Tabla que presenta el detalle de cada componente analizado -->
+    <h4>Tabla de Componentes</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Componente</th>
+                <th>Valor Resultado</th>
+                <th>Resultado</th>
+                <th>Valor Mínimo</th>
+                <th>Valor Máximo</th>
+                <th>Unidad</th>
+                <th>Sexo</th>
+                <th>Edad Mínima</th>
+                <th>Edad Máxima</th>
+            </tr>
+        </thead>
+        <tbody>
+            @* Iteración por cada componente del análisis con sus valores de referencia asociados *@
+            @foreach (var comp in Model.Componentes)
+            {
+                foreach (var refVal in comp.Referencias)
+                {
+                    <tr>
+                        <!-- Nombre del componente clínico (ejemplo: Hemoglobina, Glucosa, etc.) -->
+                        <td>@comp.NombreComponente</td>
+
+                        <!-- Valor numérico obtenido del análisis -->
+                        <td>@comp.ValorResultado</td>
+
+                        <!-- Interpretación del valor (ejemplo: Normal, Alto, Bajo) -->
+                        <td>@comp.Resultado</td>
+
+                        <!-- Valores de referencia mínimos y máximos -->
+                        <td>@refVal.ValorMinimo</td>
+                        <td>@refVal.ValorMaximo</td>
+
+                        <!-- Unidad de medida (ejemplo: g/dL, mg/dL, %) -->
+                        <td>@refVal.Unidad</td>
+
+                        <!-- Sexo asociado al valor de referencia -->
+                        <td>@refVal.Sexo</td>
+
+                        <!-- Rango etario mínimo y máximo; si no existe se muestra N/A -->
+                        <td>@(refVal.EdadMinima?.ToString() ?? "N/A")</td>
+                        <td>@(refVal.EdadMaxima?.ToString() ?? "N/A")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

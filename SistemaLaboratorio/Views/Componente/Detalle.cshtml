@@ -1,0 +1,84 @@
+﻿@model SistemaLaboratorio.Models.Componente
+
+@{
+    ViewData["Title"] = "Detalle de Componente";
+}
+
+<div class="container mt-4">
+
+    <h1 class="mb-4">Detalle de Componente</h1>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4 class="card-title">@Model.Nombre</h4>
+            <p><strong>Categoría:</strong> @Model.Categoria</p>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            Valores de Referencia
+        </div>
+        <div class="card-body">
+            @if (Model.DescripcionComponentes != null && Model.DescripcionComponentes.Any())
+            {
+                <table class="table table-bordered table-hover">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Sexo</th>
+                            <th>Edad Mín</th>
+                            <th>Edad Máx</th>
+                            <th>Valor Mín</th>
+                            <th>Valor Máx</th>
+                            <th>Unidad</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var v in Model.DescripcionComponentes)
+                        {
+                            <tr>
+                                <td>@v.Sexo</td>
+                                <td>@v.EdadMinima</td>
+                                <td>@v.EdadMaxima</td>
+                                <td>@v.ValorMinimo</td>
+                                <td>@v.ValorMaximo</td>
+                                <td>@v.Unidad</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <p class="text-muted">Ninguno</p>
+            }
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header bg-secondary text-white">
+            Reactivos Asociados
+        </div>
+        <div class="card-body">
+            @if (Model.ReactivoComponentes != null && Model.ReactivoComponentes.Any())
+            {
+                <ul class="list-group">
+                    @foreach (var rc in Model.ReactivoComponentes)
+                    {
+                        <li class="list-group-item">
+                            <p><strong>-</strong> @rc.Reactivo.Nombre con @rc.Cantidad ml</p>                            
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <p class="text-muted">Ninguno</p>
+            }
+        </div>
+    </div>
+
+    <div>
+        <a asp-action="Index" class="btn btn-outline-secondary">Regresar a la Lista</a>
+    </div>
+</div>

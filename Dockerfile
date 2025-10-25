@@ -1,9 +1,16 @@
 # Etapa de build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
+
+# Copiamos solo los archivos del proyecto
+COPY SistemaLaboratorio/SistemaLaboratorio.csproj SistemaLaboratorio/
+RUN dotnet restore SistemaLaboratorio/SistemaLaboratorio.csproj
+
+# Copiamos todo el código
 COPY . .
-RUN dotnet restore
-RUN dotnet publish -c Release -o /app/out
+
+# Publicamos la app
+RUN dotnet publish SistemaLaboratorio/SistemaLaboratorio.csproj -c Release -o /app/out
 
 # Etapa final de ejecución
 FROM mcr.microsoft.com/dotnet/aspnet:8.0

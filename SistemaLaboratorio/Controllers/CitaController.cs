@@ -16,6 +16,8 @@ namespace SistemaLaboratorio.Controllers
         private readonly DblaboratorioContext _context;
         private readonly IEmailService _mail;
         private readonly IWhatsAppService _wa;
+        private DblaboratorioContext contexto;
+
         public CitaController(DblaboratorioContext context,
                           IEmailService mail,
                           IWhatsAppService wa)
@@ -23,6 +25,11 @@ namespace SistemaLaboratorio.Controllers
             _context = context;
             _mail = mail;
             _wa = wa;
+        }
+
+        public CitaController(DblaboratorioContext contexto)
+        {
+            this.contexto = contexto;
         }
 
         // GET: Cita

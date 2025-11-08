@@ -242,7 +242,6 @@ namespace SistemaLaboratorio.Tests
         {
             // ====================================================================
             // ARRANGE - Preparar datos de entrada
-            // ====================================================================
             string usuario = "lmorales";
             string contrasena = "pass123";
 
@@ -253,12 +252,10 @@ namespace SistemaLaboratorio.Tests
 
             // ====================================================================
             // ACT - Ejecutar el método bajo prueba
-            // ====================================================================
             var result = await _controller.IniciarSesion(usuario, contrasena) as JsonResult;
 
             // ====================================================================
             // ASSERT - Verificar resultados esperados
-            // ====================================================================
 
             // Validación 1: Verificar que el método retorna JsonResult con success=true
             Assert.IsNotNull(result, "El resultado no debe ser nulo");
@@ -338,25 +335,19 @@ namespace SistemaLaboratorio.Tests
         {
             // ====================================================================
             // ARRANGE
-            // ====================================================================
             string usuarioInexistente = "usuariofalso";
             string contrasena = "cualquierpass";
 
             // ====================================================================
             // ACT
-            // ====================================================================
             var result = await _controller.IniciarSesion(usuarioInexistente, contrasena) as JsonResult;
-
             // ====================================================================
             // ASSERT
-            // ====================================================================
-
             // Validación 1: Retorna JsonResult con success=false
             Assert.IsNotNull(result);
             dynamic data = result.Value;
             Assert.IsFalse(data.GetType().GetProperty("success").GetValue(data, null),
                 "Success debe ser false para usuario inexistente");
-
             // Validación 2: Mensaje de error correcto
             Assert.AreEqual("Credenciales incorrectas o cuenta inactiva.",
                 data.GetType().GetProperty("message").GetValue(data, null).ToString(),
@@ -377,10 +368,8 @@ namespace SistemaLaboratorio.Tests
                 "TempData no debe contener EmpleadoId2FA con credenciales incorrectas");
 
             // Validación 6: Usuario permanece no autenticado (implícito en el flujo del controlador)
-
             // ====================================================================
             // OUTPUT
-            // ====================================================================
             TestContext.WriteLine($"✅ Usuario inexistente rechazado correctamente");
             TestContext.WriteLine($"❌ Credenciales intentadas: {usuarioInexistente} / {contrasena}");
             TestContext.WriteLine($"📧 Correos enviados: 0");
@@ -397,19 +386,14 @@ namespace SistemaLaboratorio.Tests
         {
             // ====================================================================
             // ARRANGE
-            // ====================================================================
             string usuario = "dtorres"; // Diego Torres - Supervisor (existe en BD)
             string contrasenaIncorrecta = "passwordincorrecto";
-
             // ====================================================================
             // ACT
-            // ====================================================================
             var result = await _controller.IniciarSesion(usuario, contrasenaIncorrecta) as JsonResult;
 
             // ====================================================================
             // ASSERT
-            // ====================================================================
-
             Assert.IsNotNull(result);
             dynamic data = result.Value;
             Assert.IsFalse(data.GetType().GetProperty("success").GetValue(data, null));
@@ -427,7 +411,6 @@ namespace SistemaLaboratorio.Tests
 
             // ====================================================================
             // OUTPUT
-            // ====================================================================
             TestContext.WriteLine($"✅ Contraseña incorrecta rechazada correctamente");
             TestContext.WriteLine($"❌ Usuario: {usuario} (existe - Diego Torres) / Contraseña: incorrecta");
             TestContext.WriteLine($"🔒 Acceso denegado sin generar OTP");

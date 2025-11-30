@@ -1,5 +1,6 @@
-flask
+Flask
 pandas
-pyodbc
 prophet
-gunicorn
+pyodbc
+numpy
+pystan

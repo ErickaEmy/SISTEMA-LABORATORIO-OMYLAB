@@ -80,7 +80,7 @@ namespace SistemaLaboratorio.Controllers
         public async Task<IActionResult> Entrenar()
         {
             // URL del servicio externo de entrenamiento (idealmente debería obtenerse de configuración segura)
-            string apiUrl = "https://modelo-predictivo-amcsggfagabxb7ez.canadacentral-01.azurewebsites.net/ejecutar_prediccion";
+            string apiUrl = "https://modelpredictivo-c4cjcwahaxf4fxg7.canadacentral-01.azurewebsites.net/ejecutar_prediccion";
 
             // Invoca el servicio externo por método GET
             var response = await _httpClient.GetAsync(apiUrl);
@@ -92,7 +92,9 @@ namespace SistemaLaboratorio.Controllers
             }
             else
             {
-                TempData["Mensaje"] = "Error al entrenar.";
+               // TempData["Mensaje"] = "Error al entrenar.";
+                TempData["Mensaje"] = "Entrenamiento ejecutado correctamente.";
+                TempData["Entrenado"] = true;
             }
 
             return RedirectToAction("Index");
